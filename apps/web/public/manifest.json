@@ -1,0 +1,9 @@
+{
+  "name": "WeTeacherWeStudent",
+  "short_name": "WTWS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0056D2",
+  "description": "Find tutors. Learn on one platform."
+}

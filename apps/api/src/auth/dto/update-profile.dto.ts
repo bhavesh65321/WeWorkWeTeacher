@@ -1,0 +1,25 @@
+import { IsOptional, IsString, MinLength } from "class-validator";
+
+export class UpdateProfileDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(10)
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  country?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(2)
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  defaultVisibility?: string;
+}

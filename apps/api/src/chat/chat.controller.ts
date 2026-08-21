@@ -1,0 +1,53 @@
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { IsString, MinLength } from "class-validator";
+import { JwtAuthGuard } from "../auth/jwt-auth.guard";
+import { CurrentUser, type AuthUser } from "../auth/current-user.decorator";
+import { ChatService } from "./chat.service";
+
+class IntroDto {
+  @IsString()
+  @MinLength(12)
+  message: string;
+}
+
+class SendDto {
+  @IsString()
+  @MinLength(1)
+  body: string;
+}
+
+class MessageTutorDto extends IntroDto {
+  @IsString()
+  tutorUserId: string;
+}
+
+@Controller()
+@UseGuards(JwtAuthGuard)
+export class ChatController {
+  constructor(private readonly chat: ChatService) {}
+
+  @Post("jobs/:id/apply")
+  apply(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() dto: IntroDto) {
+    return this.chat.applyToJob(user.sub, id, dto.message);
+  }
+
+  @Post("tutors/message")
+  messageTutor(@CurrentUser() user: AuthUser, @Body() dto: MessageTutorDto) {
+    return this.chat.messageTutor(user.sub, dto.tutorUserId, dto.message);
+  }
+
+  @Get("conversations")
+  list(@CurrentUser() user: AuthUser) {
+    return this.chat.list(user.sub);
+  }
+
+  @Get("conversations/:id")
+  get(@CurrentUser() user: AuthUser, @Param("id") id: string) {
+    return this.chat.get(user.sub, id);
+  }
+
+  @Post("conversations/:id/messages")
+  send(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() dto: SendDto) {
+    return this.chat.send(user.sub, id, dto.body);
+  }
+}

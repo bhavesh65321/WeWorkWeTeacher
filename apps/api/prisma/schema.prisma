@@ -1,0 +1,326 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TUTOR
+  ADMIN
+}
+
+enum TeachingMode {
+  ONLINE
+  HOME
+  TRAVEL
+  ASSIGNMENT
+}
+
+enum JobType {
+  TUTORING
+  ASSIGNMENT
+}
+
+enum JobVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+  FILLED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String?
+  name         String
+  dateOfBirth  DateTime?
+  phone        String?
+  googleId     String?   @unique
+  emailVerifiedAt DateTime?
+  phoneVerifiedAt DateTime?
+  roles        Json
+  activeRole   Role     @default(STUDENT)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  studentProfile StudentProfile?
+  tutorProfile   TutorProfile?
+  jobsPosted     Job[]           @relation("StudentJobs")
+  wallet         Wallet?
+  sentMessages   Message[]       @relation("SentMessages")
+  studentThreads Conversation[]  @relation("StudentThreads")
+  tutorThreads   Conversation[]  @relation("TutorThreads")
+  applies        JobApply[]
+  studentBookings Booking[]      @relation("StudentBookings")
+  tutorBookings   Booking[]      @relation("TutorBookings")
+  reviewsGiven    Review[]       @relation("ReviewsGiven")
+  reviewsReceived Review[]       @relation("ReviewsReceived")
+  flags           Flag[]
+  referralCode    String?        @unique
+  referredById    String?
+  referredBy      User?          @relation("Referrals", fields: [referredById], references: [id])
+  referrals       User[]         @relation("Referrals")
+  premiumUntil    DateTime?
+  lastSeenAt      DateTime?
+  deletedAt       DateTime?
+  payments        Payment[]
+  tickets         SupportTicket[]
+  notifications   Notification[]
+  otps            OtpChallenge[]
+}
+
+model StudentProfile {
+  id                 String  @id @default(cuid())
+  userId             String  @unique
+  user               User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city               String?
+  country            String?
+  defaultVisibility  String  @default("PUBLIC")
+}
+
+model TutorProfile {
+  id              String         @id @default(cuid())
+  userId          String         @unique
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  slug            String         @unique
+  headline        String?
+  bio             String?
+  hourlyRateMinor Int?
+  currency        String         @default("USD")
+  timezone        String         @default("UTC")
+  city            String?
+  country         String?
+  languages       Json
+  subjects        Json
+  modes           Json
+  levels          Json
+  teachingApproach String?
+  experience      String?
+  education       String?
+  hourlyRateMaxMinor Int?
+  freeTrialMinutes Int          @default(0)
+  yearsTeaching   Int?
+  yearsOnline     Int?
+  gender          String?
+  worksAs         String        @default("INDIVIDUAL")
+  ratingAvg       Float          @default(0)
+  reviewCount     Int            @default(0)
+  isPublished     Boolean        @default(true)
+  notifyMatching  Boolean        @default(true)
+  photoUrl        String?
+  rateType        String         @default("HOURLY")
+}
+
+model Job {
+  id          String         @id @default(cuid())
+  studentId   String
+  student     User           @relation("StudentJobs", fields: [studentId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  type        JobType
+  modes       Json
+  visibility  JobVisibility  @default(PUBLIC)
+  subject     String
+  level       String?
+  city        String?
+  country     String?
+  budgetMin   Int?
+  budgetMax   Int?
+  currency    String         @default("USD")
+  whenNeeded  String         @default("FLEXIBLE")
+  frequency   String         @default("WEEKLY")
+  budgetType  String         @default("HOURLY")
+  genderPref  String         @default("ANY")
+  status      JobStatus      @default(OPEN)
+  applyCount  Int            @default(0)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  applies     JobApply[]
+  conversations Conversation[]
+
+  @@index([status, visibility, createdAt])
+  @@index([subject])
+}
+
+model Wallet {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  coinBalance  Int           @default(0)
+  fiatMinor    Int           @default(0)
+  entries      LedgerEntry[]
+}
+
+model LedgerEntry {
+  id        String   @id @default(cuid())
+  walletId  String
+  wallet    Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  amount    Int
+  unit      String   @default("COIN")
+  type      String
+  note      String?
+  refId     String?
+  createdAt DateTime @default(now())
+}
+
+model JobApply {
+  id              String        @id @default(cuid())
+  jobId           String
+  job             Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  tutorId         String
+  tutor           User          @relation(fields: [tutorId], references: [id], onDelete: Cascade)
+  coinsSpent      Int
+  conversationId  String        @unique
+  conversation    Conversation  @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  studentReadAt   DateTime?
+  refundedAt      DateTime?
+  createdAt       DateTime      @default(now())
+
+  @@unique([jobId, tutorId])
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  threadKey     String    @unique
+  jobId         String?
+  job           Job?      @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  studentId     String
+  student       User      @relation("StudentThreads", fields: [studentId], references: [id], onDelete: Cascade)
+  tutorId       String
+  tutor         User      @relation("TutorThreads", fields: [tutorId], references: [id], onDelete: Cascade)
+  escrowFunded  Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  messages      Message[]
+  apply         JobApply?
+  bookings      Booking[]
+}
+
+model Message {
+  id              String       @id @default(cuid())
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId        String
+  sender          User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  body            String
+  createdAt       DateTime     @default(now())
+}
+
+model Booking {
+  id              String       @id @default(cuid())
+  conversationId  String
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  studentId       String
+  student         User         @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Cascade)
+  tutorId         String
+  tutor           User         @relation("TutorBookings", fields: [tutorId], references: [id], onDelete: Cascade)
+  startsAt        DateTime
+  durationMin     Int          @default(60)
+  amountMinor     Int
+  currency        String       @default("USD")
+  status          String       @default("REQUESTED")
+  disputedAt      DateTime?
+  disputeReason   String?
+  createdAt       DateTime     @default(now())
+  escrow          EscrowHold?
+  review          Review?
+}
+
+model EscrowHold {
+  id         String   @id @default(cuid())
+  bookingId  String   @unique
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amountMinor Int
+  status     String   @default("HELD")
+  createdAt  DateTime @default(now())
+  releasedAt DateTime?
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  bookingId  String   @unique
+  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  fromId     String
+  from       User     @relation("ReviewsGiven", fields: [fromId], references: [id], onDelete: Cascade)
+  toId       String
+  to         User     @relation("ReviewsReceived", fields: [toId], references: [id], onDelete: Cascade)
+  rating     Int
+  body       String?
+  createdAt  DateTime @default(now())
+}
+
+model Flag {
+  id         String   @id @default(cuid())
+  reporterId String
+  reporter   User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType String
+  targetId   String
+  reason     String
+  status     String   @default("OPEN")
+  createdAt  DateTime @default(now())
+}
+
+model Payment {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  kind        String
+  status      String    @default("PENDING")
+  coins       Int?
+  bookingId   String?
+  amountMinor Int
+  currency    String    @default("USD")
+  provider    String
+  providerRef String?   @unique
+  createdAt   DateTime  @default(now())
+  paidAt      DateTime?
+}
+
+model SupportTicket {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  email     String
+  name      String
+  topic     String
+  body      String
+  status    String   @default("OPEN")
+  adminNote String?
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model OtpChallenge {
+  id          String    @id @default(cuid())
+  userId      String?
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel     String
+  purpose     String
+  destination String
+  codeHash    String
+  attempts    Int       @default(0)
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([destination, purpose, createdAt])
+}

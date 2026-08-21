@@ -1,0 +1,26 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wtws-postgres
+    environment:
+      POSTGRES_USER: wtws
+      POSTGRES_PASSWORD: wtws
+      POSTGRES_DB: wtws
+    ports:
+      - "5432:5432"
+    volumes:
+      - wtws_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wtws"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: wtws-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  wtws_pg:

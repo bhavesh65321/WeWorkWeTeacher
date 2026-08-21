@@ -1,0 +1,19 @@
+{
+  "name": "wtws",
+  "private": true,
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "db:up": "docker compose -f infra/docker-compose.yml up -d",
+    "db:down": "docker compose -f infra/docker-compose.yml down",
+    "db:migrate": "pnpm --filter @wtws/api prisma:migrate",
+    "db:seed": "pnpm --filter @wtws/api prisma:seed",
+    "db:reset": "pnpm --filter @wtws/api prisma:reset"
+  },
+  "devDependencies": {
+    "turbo": "^2.10.11",
+    "typescript": "^5.8.2"
+  }
+}
