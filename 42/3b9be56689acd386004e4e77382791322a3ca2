@@ -1,0 +1,107 @@
+apps/api/src/auth/auth.integration.spec.ts
+  s_11106e1ec74c31::t_8c5795200e627a 1-291
+apps/api/tsconfig.json
+  s_784cd20e72dc48::t_b5a26969d44671 11-12,14-15
+apps/api/src/auth/blocked-users.spec.ts
+  s_11106e1ec74c31::t_0e0eb1e34e90c6 1-228
+apps/api/src/admin/admin.controller.ts
+  s_11106e1ec74c31::t_4c2b0cd7ed618c 38-46
+  s_11106e1ec74c31::t_4c2115a43fb30c 128-163
+  s_11106e1ec74c31::t_ff41ce16f6409e 77,85-86
+  s_11106e1ec74c31::t_28eac676c0fb17 11
+apps/api/src/jobs/dto/create-job.dto.ts
+  s_784cd20e72dc48::t_5a87db9bdbab1e 19-23
+docs/E2E-TESTS-V1.md
+  s_784cd20e72dc48::t_e324a8cd28bd6d 1-390
+apps/api/src/auth/google-signin.spec.ts
+  s_11106e1ec74c31::t_1fdf5e2b081056 1-328
+apps/api/src/auth/auth.service.spec.ts
+  s_11106e1ec74c31::t_9d324cce1fa858 1-221
+apps/api/src/auth/auth.service.ts
+  s_11106e1ec74c31::t_94faf1a5f2f605 4
+  s_11106e1ec74c31::t_396e26a03ab41e 424
+  s_11106e1ec74c31::t_c02f42c048e07b 109
+  s_11106e1ec74c31::t_d78360db0d6c29 394
+  s_11106e1ec74c31::t_4341043d4ad7c4 489
+  s_11106e1ec74c31::t_2b6baf5542a1b9 19
+  s_11106e1ec74c31::t_f4a397e0a4229b 95
+apps/api/src/jobs/jobs.service.ts
+  s_784cd20e72dc48::t_db4e3c5df3a30e 32,34,48-62
+  s_784cd20e72dc48::t_dd5bbead43c118 153
+  s_784cd20e72dc48::t_5995fab3c8e215 208-213,216,219-267
+  s_11106e1ec74c31::t_2043e527ac7a9c 130-133
+  s_11106e1ec74c31::t_668600041e1cab 170
+  s_784cd20e72dc48::t_20c0a1220c5a40 188
+  s_11106e1ec74c31::t_fd2807e1c11c25 8
+  s_784cd20e72dc48::t_68ca3c4c5e9661 6
+apps/api/src/flags/flags.service.ts
+  s_784cd20e72dc48::t_140fa995d28445 1-141
+apps/api/src/flags/flags.controller.ts
+  s_784cd20e72dc48::t_5d74b0ba8a2232 1,27,36,45,54
+  s_784cd20e72dc48::t_ea0d3f664471f4 2-4,9-14,17-21,23,25-26,28-31,34-35,37-40,43-44,46-49,52-53,55-56
+  s_784cd20e72dc48::t_533471f984bb8a 5-8,15-16,22,24,32-33,41-42,50-51
+apps/api/src/flags/flags.module.ts
+  s_784cd20e72dc48::t_2377699da0f7f5 1-12
+apps/api/src/auth/otp-verification.spec.ts
+  s_11106e1ec74c31::t_ca32026def6909 1-275
+docs/IMPLEMENTATION-SUMMARY-V1.md
+  s_784cd20e72dc48::t_2898823ba839c7 1-513
+apps/api/src/payments/payments.service.ts
+  s_11106e1ec74c31::t_b8dc9ae2267084 176-177
+  s_11106e1ec74c31::t_390ebd56983f1a 33-36
+  s_11106e1ec74c31::t_2dfab7ff68e984 8
+apps/api/src/auth/jwt-auth.guard.ts
+  s_11106e1ec74c31::t_c73fcf45dd7a17 1,3,8-11,13,18-29,31-32
+apps/api/src/tutors/tutors.service.spec.ts
+  s_11106e1ec74c31::t_eb8daba6b1fda7 1-268
+apps/api/src/marketplace-rules.ts
+  s_784cd20e72dc48::t_17636a086947df 61-151
+apps/api/src/tutors/tutors.service.ts
+  s_11106e1ec74c31::t_7cf0e45a54c173 337,349
+  s_11106e1ec74c31::t_1be713495479fc 5
+  s_11106e1ec74c31::t_38b2ebbaef1640 275,312-313
+  s_11106e1ec74c31::t_4b91c8c009c222 217-219
+  s_11106e1ec74c31::t_9446709cfa892f 146
+  s_11106e1ec74c31::t_5afb253b47ef61 192-216
+apps/api/prisma/schema.prisma
+  s_784cd20e72dc48::t_82ed17dda8a2b6 133
+  s_784cd20e72dc48::t_d2f6d9413ee274 105
+  s_11106e1ec74c31::t_a164d8c54a5f98 51-52
+  s_784cd20e72dc48::t_10e9a10c50f150 270
+apps/api/src/analytics.ts
+  s_11106e1ec74c31::t_6c2fe3ff22f343 1-19
+apps/api/src/chat/chat.service.ts
+  s_11106e1ec74c31::t_8236f838cdb156 87
+  s_11106e1ec74c31::t_e040e3399ad838 30-33
+  s_11106e1ec74c31::t_0689301462ab9e 93-96
+  s_11106e1ec74c31::t_076154a23705db 118
+  s_11106e1ec74c31::t_088369541dda6d 19
+  s_784cd20e72dc48::t_73bdec1d8f84fd 152-161,166-167
+  s_11106e1ec74c31::t_c7bea7f9dff55d 86
+apps/api/src/app.module.ts
+  s_784cd20e72dc48::t_6b55f0d7e0c9db 14,30
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.2",
+  "base_commit_sha": "423b9be56689acd386004e4e77382791322a3ca2",
+  "prompts": {},
+  "sessions": {
+    "s_11106e1ec74c31": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "30dbd06b-d401-40e9-a3c1-6dee25cb5a57",
+        "model": "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    },
+    "s_784cd20e72dc48": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "dab04a72-2183-4518-86b6-bf9cdd71fba1",
+        "model": "us.anthropic.claude-haiku-4-5-20251001-v1:0"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
