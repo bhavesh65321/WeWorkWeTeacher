@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { Prisma, TeachingMode } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { asSkills, asStringArray, jsonList, jsonSkills } from "../json-list";
+import { track } from "../analytics";
 
 export type TutorQuery = {
   q?: string;
@@ -142,6 +143,7 @@ export class TutorsService {
     const fullSave = data.headline !== undefined || skills !== undefined;
     const rateType = data.rateType ?? profile.rateType ?? "HOURLY";
     const merged = {
+      photoUrl: profile.photoUrl,
       headline: data.headline ?? profile.headline,
       bio: data.bio ?? profile.bio,
       hourlyRateMinor: data.hourlyRateMinor ?? profile.hourlyRateMinor,
@@ -187,6 +189,34 @@ export class TutorsService {
       },
       include: { user: true },
     });
+
+    // Auto-unpublish if required fields removed
+    if (updated.isPublished) {
+      const gaps = profileGaps({
+        photoUrl: updated.photoUrl,
+        headline: updated.headline,
+        bio: updated.bio,
+        hourlyRateMinor: updated.hourlyRateMinor,
+        city: updated.city,
+        country: updated.country,
+        subjects: asSkills(updated.subjects).map((s) => s.name),
+        modes: asStringArray(updated.modes),
+        languages: asStringArray(updated.languages),
+        rateType: updated.rateType,
+      });
+
+      if (gaps.length > 0) {
+        await this.prisma.tutorProfile.update({
+          where: { userId },
+          data: { isPublished: false },
+        });
+        updated.isPublished = false;
+      }
+    }
+
+    if (data.isPublished === true && !profile.isPublished) {
+      track("tutor_published", userId, "TUTOR");
+    }
     return this.toCard(updated);
   }
 
@@ -242,7 +272,7 @@ export class TutorsService {
     reviewCount: number;
     photoUrl?: string | null;
     rateType?: string;
-    user: { name: string; createdAt: Date; lastSeenAt?: Date | null };
+    user: { name: string; createdAt: Date; lastSeenAt?: Date | null; emailVerifiedAt?: Date | null; phoneVerifiedAt?: Date | null };
   }) {
     const skills = asSkills(t.subjects);
     return {
@@ -279,6 +309,8 @@ export class TutorsService {
       lastSeenAt: t.user.lastSeenAt ? t.user.lastSeenAt.toISOString() : null,
       ratingAvg: t.ratingAvg,
       reviewCount: t.reviewCount,
+      emailVerified: !!t.user.emailVerifiedAt,
+      phoneVerified: !!t.user.phoneVerifiedAt,
     };
   }
 }
@@ -302,6 +334,7 @@ function cleanSkills(raw: { name: string; level: string }[]) {
 }
 
 function profileGaps(p: {
+  photoUrl?: string | null;
   headline: string | null;
   bio: string | null;
   hourlyRateMinor: number | null;
@@ -313,6 +346,7 @@ function profileGaps(p: {
   rateType: string;
 }) {
   const missing: string[] = [];
+  if (!p.photoUrl) missing.push("profile photo");
   if (!p.headline?.trim() || p.headline.trim().length < 8) missing.push("headline");
   if (!p.bio?.trim() || p.bio.trim().length < 20) missing.push("bio");
   if (p.rateType !== "FREE" && p.hourlyRateMinor == null) missing.push("rate");

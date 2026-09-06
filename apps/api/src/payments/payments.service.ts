@@ -5,6 +5,7 @@ import { PrismaService } from "../prisma/prisma.service";
 import { WalletService } from "../wallet/wallet.service";
 import { BookingService } from "../booking/booking.service";
 import { COIN_PACKS } from "../marketplace-rules";
+import { track } from "../analytics";
 
 @Injectable()
 export class PaymentsService {
@@ -29,6 +30,10 @@ export class PaymentsService {
   }
 
   async checkoutCoins(userId: string, coins: number) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (user?.blockedAt) {
+      throw new ForbiddenException("Your account has been blocked. Contact support.");
+    }
     const pack = COIN_PACKS.find((p) => p.coins === coins);
     if (!pack) throw new BadRequestException("Unknown pack");
     if (!this.stripe) {
@@ -168,6 +173,8 @@ export class PaymentsService {
     }
     if (payment.kind === "ESCROW" && payment.bookingId) {
       await this.bookings.paySandbox(payment.userId, payment.bookingId);
+      const booking = await this.prisma.booking.findUnique({ where: { id: payment.bookingId } });
+      track("escrow_paid", payment.userId, "STUDENT", { bookingId: payment.bookingId, amountMinor: payment.amountMinor, currency: booking?.currency });
     }
     return { ok: true };
   }

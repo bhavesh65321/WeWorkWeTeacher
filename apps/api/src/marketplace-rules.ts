@@ -58,3 +58,94 @@ export const COIN_PACKS = [
 export function platformFee(amountMinor: number) {
   return Math.round((amountMinor * PLATFORM_TAKE_BPS) / 10_000);
 }
+
+// Skill aliases for fuzzy matching
+const SKILL_ALIASES: Record<string, string[]> = {
+  maths: ["mathematics", "math"],
+  mathematics: ["maths", "math"],
+  math: ["maths", "mathematics"],
+  eng: ["english"],
+  english: ["eng"],
+};
+
+function normalizeSkill(skill: string): string {
+  return skill.toLowerCase().trim();
+}
+
+function getSkillVariants(skill: string): Set<string> {
+  const normalized = normalizeSkill(skill);
+  const variants = new Set([normalized]);
+  if (SKILL_ALIASES[normalized]) {
+    SKILL_ALIASES[normalized].forEach((alias) => variants.add(normalizeSkill(alias)));
+  }
+  return variants;
+}
+
+function jaccardSimilarity(setA: Set<string>, setB: Set<string>): number {
+  const intersection = new Set([...setA].filter((x) => setB.has(x)));
+  const union = new Set([...setA, ...setB]);
+  return union.size === 0 ? 0 : intersection.size / union.size;
+}
+
+export interface JobMatchResult {
+  match: boolean;
+  score: number;
+}
+
+export function isJobMatch(
+  tutor: { skills?: string[]; subjects?: string[]; languages?: string[]; modes?: string[] },
+  job: { subject?: string; languages?: string[]; modes?: string[] },
+): JobMatchResult {
+  // Tutor must have skills/subjects
+  const tutorSkills = new Set<string>();
+  if (tutor.skills) {
+    tutor.skills.forEach((s) => {
+      getSkillVariants(s).forEach((v) => tutorSkills.add(v));
+    });
+  }
+  if (tutor.subjects) {
+    tutor.subjects.forEach((s) => {
+      getSkillVariants(s).forEach((v) => tutorSkills.add(v));
+    });
+  }
+  if (tutorSkills.size === 0) {
+    return { match: false, score: 0 };
+  }
+
+  // Job subject
+  const jobSkills = new Set<string>();
+  if (job.subject) {
+    getSkillVariants(job.subject).forEach((v) => jobSkills.add(v));
+  }
+  if (jobSkills.size === 0) {
+    return { match: false, score: 0 };
+  }
+
+  // Skill overlap (Jaccard similarity)
+  const skillScore = jaccardSimilarity(tutorSkills, jobSkills);
+  if (skillScore < 0.35) {
+    return { match: false, score: skillScore };
+  }
+
+  // Language intersection (if job specifies languages)
+  if (job.languages && job.languages.length > 0) {
+    const tutorLangs = new Set((tutor.languages || []).map((l) => l.toLowerCase()));
+    const jobLangs = new Set(job.languages.map((l) => l.toLowerCase()));
+    const hasCommonLang = [...jobLangs].some((lang) => tutorLangs.has(lang));
+    if (!hasCommonLang) {
+      return { match: false, score: skillScore };
+    }
+  }
+
+  // Mode intersection
+  if (job.modes && job.modes.length > 0) {
+    const tutorModes = new Set((tutor.modes || []).map((m) => m.toUpperCase()));
+    const jobModes = new Set(job.modes.map((m) => m.toUpperCase()));
+    const hasCommonMode = [...jobModes].some((mode) => tutorModes.has(mode));
+    if (!hasCommonMode) {
+      return { match: false, score: skillScore };
+    }
+  }
+
+  return { match: true, score: skillScore };
+}

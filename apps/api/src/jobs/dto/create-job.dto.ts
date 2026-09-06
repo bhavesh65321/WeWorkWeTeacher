@@ -16,6 +16,11 @@ export class CreateJobDto {
   @IsEnum(TeachingMode, { each: true })
   modes: TeachingMode[];
 
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  languages?: string[];
+
   @IsEnum(JobVisibility)
   visibility: JobVisibility;
 

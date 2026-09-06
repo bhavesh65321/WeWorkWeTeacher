@@ -16,6 +16,7 @@ import {
   currentCoinPrice,
   maskContact,
 } from "../marketplace-rules";
+import { track } from "../analytics";
 
 @Injectable()
 export class ChatService {
@@ -26,9 +27,12 @@ export class ChatService {
   ) {}
 
   async applyToJob(tutorId: string, jobId: string, intro: string) {
+    const tutor = await this.prisma.user.findUnique({ where: { id: tutorId } });
+    if (tutor?.blockedAt) {
+      throw new ForbiddenException("Your account has been blocked. Contact support.");
+    }
     const profile = await this.prisma.tutorProfile.findUnique({ where: { userId: tutorId } });
     if (!profile) throw new ForbiddenException("Enable tutor role first");
-    const tutor = await this.prisma.user.findUnique({ where: { id: tutorId } });
     const job = await this.prisma.job.findUnique({ where: { id: jobId } });
     if (!job || job.status !== "OPEN" || job.visibility !== "PUBLIC") {
       throw new NotFoundException("Job not found");
@@ -79,11 +83,17 @@ export class ChatService {
       `${tutor?.name ?? "A tutor"} applied to ${job.title}`,
       `/jobs/${jobId}`,
     );
+    track("job_applied", tutorId, "TUTOR", { jobId, coinsSpent: price });
+    track("chat_started", tutorId, "TUTOR", { conversationId: conversation.id });
     return { conversationId: conversation.id, coinsSpent: price };
   }
 
   async messageTutor(studentId: string, tutorUserId: string, intro: string) {
     if (studentId === tutorUserId) throw new BadRequestException("Cannot message yourself");
+    const student = await this.prisma.user.findUnique({ where: { id: studentId } });
+    if (student?.blockedAt) {
+      throw new ForbiddenException("Your account has been blocked. Contact support.");
+    }
     const tutor = await this.prisma.tutorProfile.findUnique({ where: { userId: tutorUserId } });
     if (!tutor) throw new NotFoundException("Tutor not found");
     const threadKey = `${studentId}:${tutorUserId}:direct`;
@@ -99,13 +109,13 @@ export class ChatService {
         messages: { create: { senderId: studentId, body: maskContact(intro) } },
       },
     });
-    const student = await this.prisma.user.findUnique({ where: { id: studentId } });
     await this.notifications.create(
       tutorUserId,
       "New student message",
       `${student?.name ?? "A student"} wants to work with you`,
       `/inbox/${conversation.id}`,
     );
+    track("chat_started", studentId, "STUDENT", { conversationId: conversation.id });
     return { conversationId: conversation.id, coinsSpent: STUDENT_MESSAGE_COST };
   }
 
@@ -139,10 +149,22 @@ export class ChatService {
     if (t.apply && t.studentId === userId && !t.apply.studentReadAt) {
       await this.prisma.jobApply.update({ where: { id: t.apply.id }, data: { studentReadAt: new Date() } });
     }
+
+    // Compute contact unlock status
+    const student = await this.prisma.user.findUnique({ where: { id: t.studentId } });
+    const contactUnlocked =
+      t.escrowFunded && student?.emailVerifiedAt && student?.phoneVerifiedAt;
+    const unlockBlockers: ("PAY" | "EMAIL" | "PHONE")[] = [];
+    if (!t.escrowFunded) unlockBlockers.push("PAY");
+    if (!student?.emailVerifiedAt) unlockBlockers.push("EMAIL");
+    if (!student?.phoneVerifiedAt) unlockBlockers.push("PHONE");
+
     const masked = !t.escrowFunded;
     return {
       ...this.toThread(t, userId),
       escrowFunded: t.escrowFunded,
+      contactUnlocked,
+      unlockBlockers,
       bookings: t.bookings,
       messages: t.messages.map((m) => ({
         id: m.id,

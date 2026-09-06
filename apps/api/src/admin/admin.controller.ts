@@ -8,6 +8,7 @@ import { WalletService } from "../wallet/wallet.service";
 import { ChatService } from "../chat/chat.service";
 import { BookingService } from "../booking/booking.service";
 import { asStringArray } from "../json-list";
+import { track } from "../analytics";
 
 class FlagDto {
   @IsString()
@@ -32,6 +33,15 @@ class RefundDto {
 
   @IsString()
   note: string;
+}
+
+class BlockUserDto {
+  @IsString()
+  userId: string;
+
+  @IsString()
+  @MinLength(8)
+  reason: string;
 }
 
 @Controller("admin")
@@ -64,7 +74,7 @@ export class AdminController {
 
   @Post("flags")
   async flag(@CurrentUser() user: AuthUser, @Body() dto: FlagDto) {
-    return this.prisma.flag.create({
+    const created = await this.prisma.flag.create({
       data: {
         reporterId: user.sub,
         targetType: dto.targetType,
@@ -72,6 +82,8 @@ export class AdminController {
         reason: dto.reason,
       },
     });
+    track("report_submitted", user.sub, undefined, { targetType: dto.targetType, reason: dto.reason, targetId: dto.targetId });
+    return created;
   }
 
   @Post("flags/:id/resolve")
@@ -112,5 +124,41 @@ export class AdminController {
     await this.assertAdmin(user.sub);
     await this.wallet.creditCoins(dto.userId, Number(dto.coins), "ADMIN", dto.note);
     return { ok: true };
+  }
+
+  @Post("users/:userId/block")
+  async blockUser(@CurrentUser() user: AuthUser, @Param("userId") userId: string, @Body() dto: BlockUserDto) {
+    await this.assertAdmin(user.sub);
+    
+    if (user.sub === userId) {
+      throw new ForbiddenException("You cannot block your own account.");
+    }
+
+    const targetUser = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!targetUser) throw new ForbiddenException("User not found");
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        blockedAt: new Date(),
+        blockReason: dto.reason,
+      },
+    });
+  }
+
+  @Post("users/:userId/unblock")
+  async unblockUser(@CurrentUser() user: AuthUser, @Param("userId") userId: string) {
+    await this.assertAdmin(user.sub);
+
+    const targetUser = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!targetUser) throw new ForbiddenException("User not found");
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        blockedAt: null,
+        blockReason: null,
+      },
+    });
   }
 }

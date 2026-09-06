@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
@@ -15,6 +16,7 @@ import { LoginDto } from "./dto/login.dto";
 import { asStringArray, jsonList } from "../json-list";
 import { REFERRAL_BONUS, STUDENT_STARTER_COINS, TUTOR_STARTER_COINS, normalizePhone } from "../marketplace-rules";
 import { OtpService } from "./otp.service";
+import { track } from "../analytics";
 
 const MIN_AGE = 13;
 
@@ -90,6 +92,7 @@ export class AuthService {
       }
     }
     const issued = this.issue(user.id, user.email, user.activeRole, user.name, asStringArray(user.roles));
+    track("signup_completed", user.id, user.activeRole);
     const otp = await this.otp.send({
       channel: "EMAIL",
       purpose: "VERIFY",
@@ -103,6 +106,7 @@ export class AuthService {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email.toLowerCase() } });
     if (!user) throw new UnauthorizedException("Invalid email or password");
     if (user.deletedAt) throw new UnauthorizedException("Account closed");
+    if (user.blockedAt) throw new ForbiddenException("Your account has been blocked. Contact support.");
     if (!user.passwordHash) {
       throw new UnauthorizedException("This account uses Google. Continue with Google, or reset your password.");
     }
@@ -387,6 +391,7 @@ export class AuthService {
       where: { OR: [{ googleId: profile.sub }, { email }], deletedAt: null },
     });
     if (user?.deletedAt) throw new UnauthorizedException("Account closed");
+    if (user?.blockedAt) throw new ForbiddenException("Your account has been blocked. Contact support.");
     if (!user) {
       user = await this.prisma.user.create({
         data: {
@@ -416,6 +421,7 @@ export class AuthService {
 
     await this.prisma.user.update({ where: { id: user.id }, data: { lastSeenAt: new Date() } });
     const issued = this.issue(user.id, user.email, user.activeRole, user.name, asStringArray(user.roles));
+    track("signup_completed", user.id, user.activeRole);
     return {
       ...issued,
       needsVerify: false,
@@ -480,6 +486,7 @@ export class AuthService {
           data: { phone, phoneVerifiedAt: new Date() },
         });
       }
+      track("otp_verified", userId, me.activeRole, { type: dto.channel });
       return this.me(userId);
     }
 

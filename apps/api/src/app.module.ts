@@ -11,6 +11,7 @@ import { AdminModule } from "./admin/admin.module";
 import { PaymentsModule } from "./payments/payments.module";
 import { SupportModule } from "./support/support.module";
 import { NotificationsModule } from "./notifications/notifications.module";
+import { FlagsModule } from "./flags/flags.module";
 import { HealthController } from "./health.controller";
 
 @Module({
@@ -26,6 +27,7 @@ import { HealthController } from "./health.controller";
     PaymentsModule,
     SupportModule,
     NotificationsModule,
+    FlagsModule,
     AdminModule,
   ],
   controllers: [HealthController],

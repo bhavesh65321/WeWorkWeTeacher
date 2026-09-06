@@ -8,7 +8,9 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "target": "ES2022",
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.spec.ts", "node_modules"]
 }

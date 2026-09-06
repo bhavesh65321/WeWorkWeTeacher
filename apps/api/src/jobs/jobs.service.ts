@@ -3,8 +3,9 @@ import { JobStatus, JobVisibility, Prisma, TeachingMode } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateJobDto } from "./dto/create-job.dto";
 import { asStringArray, jsonList } from "../json-list";
-import { EARLY_ACCESS_HOURS, MAX_JOBS_PER_DAY, currentCoinPrice, containsContactLeak } from "../marketplace-rules";
+import { EARLY_ACCESS_HOURS, MAX_JOBS_PER_DAY, currentCoinPrice, containsContactLeak, isJobMatch } from "../marketplace-rules";
 import { NotificationsService } from "../notifications/notifications.service";
+import { track } from "../analytics";
 
 @Injectable()
 export class JobsService {
@@ -28,10 +29,9 @@ export class JobsService {
       take: 80,
     });
 
-    let matchSubjects: string[] = [];
+    let tutorProfile = null;
     if (query.matched === "1" && viewerId) {
-      const profile = await this.prisma.tutorProfile.findUnique({ where: { userId: viewerId } });
-      matchSubjects = asStringArray(profile?.subjects);
+      tutorProfile = await this.prisma.tutorProfile.findUnique({ where: { userId: viewerId } });
     }
 
     return jobs
@@ -45,8 +45,21 @@ export class JobsService {
           const hay = `${j.title} ${j.description} ${j.subject}`.toLowerCase();
           if (!hay.includes(query.q.toLowerCase())) return false;
         }
-        if (matchSubjects.length && !matchSubjects.some((s) => s.toLowerCase() === j.subject.toLowerCase())) {
-          return false;
+        if (query.matched === "1" && tutorProfile) {
+          const result = isJobMatch(
+            {
+              skills: asStringArray(tutorProfile.skills),
+              subjects: asStringArray(tutorProfile.subjects),
+              languages: asStringArray(tutorProfile.languages),
+              modes: asStringArray(tutorProfile.modes),
+            },
+            {
+              subject: j.subject,
+              languages: asStringArray(j.languages),
+              modes: asStringArray(j.modes),
+            },
+          );
+          if (!result.match) return false;
         }
         return true;
       })
@@ -114,6 +127,10 @@ export class JobsService {
   }
 
   async create(studentId: string, dto: CreateJobDto) {
+    const student = await this.prisma.user.findUnique({ where: { id: studentId } });
+    if (student?.blockedAt) {
+      throw new ForbiddenException("Your account has been blocked. Contact support.");
+    }
     if (containsContactLeak(dto.description) || containsContactLeak(dto.title)) {
       throw new BadRequestException("Don't share phone, email, or links in the post. Tutors apply in WTWS.");
     }
@@ -133,6 +150,7 @@ export class JobsService {
         description: dto.description,
         type: dto.type,
         modes: jsonList(dto.modes),
+        languages: jsonList(dto.languages ?? []),
         visibility: dto.visibility,
         subject: dto.subject,
         level: dto.level,
@@ -149,6 +167,7 @@ export class JobsService {
       include: { student: true },
     });
     await this.notifyMatchingTutors(job.id, job.title, job.subject, studentId);
+    track("job_posted", studentId, "STUDENT", { jobId: job.id, subject: job.subject });
     return this.toCard(job);
   }
 
@@ -166,6 +185,7 @@ export class JobsService {
         description: dto.description,
         type: dto.type,
         modes: dto.modes ? jsonList(dto.modes) : undefined,
+        languages: dto.languages ? jsonList(dto.languages) : undefined,
         visibility: dto.visibility,
         subject: dto.subject,
         level: dto.level,
@@ -185,23 +205,66 @@ export class JobsService {
   }
 
   private async notifyMatchingTutors(jobId: string, title: string, subject: string, studentId: string) {
+    const job = await this.prisma.job.findUnique({
+      where: { id: jobId },
+      select: { subject: true, languages: true, modes: true },
+    });
+    if (!job) return;
+
     const tutors = await this.prisma.tutorProfile.findMany({
       where: { isPublished: true, notifyMatching: true, userId: { not: studentId } },
-      select: { userId: true, subjects: true },
+      include: { user: true },
       take: 80,
     });
-    const needle = subject.toLowerCase();
-    const matches = tutors
-      .filter((t) => asStringArray(t.subjects).some((s) => s.toLowerCase() === needle))
-      .slice(0, 20);
-    if (!matches.length) return;
-    await this.prisma.notification.createMany({
-      data: matches.map((t) => ({
-        userId: t.userId,
-        title: "New job posted",
-        body: title,
-        href: `/jobs/${jobId}`,
-      })),
+
+    const matchedTutors = tutors
+      .map((t) => ({
+        tutor: t,
+        result: isJobMatch(
+          {
+            skills: asStringArray(t.skills),
+            subjects: asStringArray(t.subjects),
+            languages: asStringArray(t.languages),
+            modes: asStringArray(t.modes),
+          },
+          {
+            subject: job.subject,
+            languages: asStringArray(job.languages),
+            modes: asStringArray(job.modes),
+          },
+        ),
+      }))
+      .filter((m) => m.result.match)
+      .sort((a, b) => b.result.score - a.result.score)
+      .slice(0, 50);
+
+    if (!matchedTutors.length) return;
+
+    // Create in-app notifications (idempotent)
+    for (const { tutor } of matchedTutors) {
+      const existing = await this.prisma.notification.findFirst({
+        where: {
+          userId: tutor.userId,
+          title: "New job matching your skills",
+          href: `/jobs/${jobId}`,
+        },
+      });
+      if (!existing) {
+        await this.prisma.notification.create({
+          data: {
+            userId: tutor.userId,
+            title: "New job matching your skills",
+            body: title,
+            href: `/jobs/${jobId}`,
+          },
+        });
+      }
+    }
+
+    track("match_notified", undefined, undefined, {
+      jobId,
+      matchCount: matchedTutors.length,
+      tutorIds: matchedTutors.map((m) => m.tutor.userId),
     });
   }
 

@@ -48,6 +48,8 @@ model User {
   phoneVerifiedAt DateTime?
   roles        Json
   activeRole   Role     @default(STUDENT)
+  blockedAt    DateTime?
+  blockReason  String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -100,6 +102,7 @@ model TutorProfile {
   country         String?
   languages       Json
   subjects        Json
+  skills          Json           @default("[]")
   modes           Json
   levels          Json
   teachingApproach String?
@@ -127,6 +130,7 @@ model Job {
   description String
   type        JobType
   modes       Json
+  languages   Json           @default("[]")
   visibility  JobVisibility  @default(PUBLIC)
   subject     String
   level       String?
@@ -263,6 +267,7 @@ model Flag {
   targetType String
   targetId   String
   reason     String
+  notes      String?
   status     String   @default("OPEN")
   createdAt  DateTime @default(now())
 }
