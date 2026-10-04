@@ -1,0 +1,154 @@
+apps/api/prisma/seed.ts
+  s_11106e1ec74c31::t_9deefb84aa2296 159
+  s_11106e1ec74c31::t_338d327022d7b9 223,240,255
+apps/web/components/tutor-dashboard.tsx
+  s_11106e1ec74c31::t_0e0bea489fbcdb 4-6,34-39,44-69,71,74,81,88,97,99,101-102,106,118,123,125-126,130-138,140,142
+  s_11106e1ec74c31::t_aed4c60564fa71 27-30,32-33,40-43,72-73,75-80,82-87,89-96,100,103-105,107-117,119-122,127-129,139
+  s_11106e1ec74c31::t_71cac02bacd9ee 1
+  s_11106e1ec74c31::t_ba6f4cf83a9c27 3
+apps/web/components/ui/icons.tsx
+  s_11106e1ec74c31::t_9c84b769e6d841 1-130
+apps/web/app/support/page.tsx
+  s_11106e1ec74c31::t_04f4c017b8e24c 4,38-73,79-171
+apps/web/app/settings/page.tsx
+  s_11106e1ec74c31::t_6b9b761ab80d8a 8
+  s_11106e1ec74c31::t_36d2c930d085dd 86
+  s_11106e1ec74c31::t_01ea16de57efb5 9-11,70-76,79-85,87-122,124-131,133-187
+apps/web/components/ui/page-header.tsx
+  s_11106e1ec74c31::t_87b7adf1807f0c 1-106
+apps/web/components/ui/index.ts
+  s_11106e1ec74c31::t_ee957da9e9a1ae 1-3
+apps/web/components/student-phone-action-card.tsx
+  s_11106e1ec74c31::t_711a6739135ce4 1-27
+apps/web/lib/client.ts
+  s_11106e1ec74c31::t_7efdb0957d5c13 39
+  s_11106e1ec74c31::t_ed413051281b62 2-13,17,30-38,42
+  s_11106e1ec74c31::t_eccb7c5b78abcc 14
+apps/web/app/jobs/new/page.tsx
+  s_11106e1ec74c31::t_cd65fad4fcff8a 17-33
+apps/web/app/inbox/page.tsx
+  s_11106e1ec74c31::t_dee5f1248765d6 23,25-35,37-104
+apps/web/components/ui/cards.tsx
+  s_11106e1ec74c31::t_dc6ceb4b52cd8d 1-166
+apps/web/components/my-post-row.tsx
+  s_11106e1ec74c31::t_1671844b105af8 8,26-83,85-101,103
+apps/web/components/account-menu.tsx
+  s_11106e1ec74c31::t_65ba18f028b750 3,12-22,30-36,38,41,45-59,61-121,123-136,138
+apps/web/components/job-card.tsx
+  s_11106e1ec74c31::t_816a543f86b374 8-73
+apps/web/app/tutors/page.tsx
+  s_11106e1ec74c31::t_5a99b3071b2d32 2,23-39,41-48,50-58,60-86
+apps/web/app/jobs/mine/page.tsx
+  s_11106e1ec74c31::t_f4fdfffcbeaaf1 17-20,22-28,32,34,37-71
+apps/web/app/register/register-form.tsx
+  s_11106e1ec74c31::t_b67d2b058d9fec 9
+  s_11106e1ec74c31::t_1478ec59c8db31 48
+packages/shared/src/index.ts
+  s_11106e1ec74c31::t_0aca085c543a12 56-57
+apps/api/src/flags/flags.controller.ts
+  s_11106e1ec74c31::t_25b0aace69b6da 17
+  s_11106e1ec74c31::t_c70f2596cc3e18 6
+apps/api/prisma/migrations/20260906165520_init/migration.sql
+  s_11106e1ec74c31::t_5a2e14d2671749 1-322
+apps/api/prisma/migrations/20260906173255_init/migration.sql
+  s_11106e1ec74c31::t_7d06ade61ce130 1-77
+apps/web/next.config.ts
+  s_11106e1ec74c31::t_227b8c6d4b1d87 15-26
+  s_11106e1ec74c31::t_a56655ca667ab2 10-14,27
+apps/web/components/brand-mark.tsx
+  s_11106e1ec74c31::t_5db2b22b940276 5-6,9-10,13,16
+apps/web/lib/session.ts
+  s_11106e1ec74c31::t_572a2faae9faae 2-4
+apps/web/app/login/page.tsx
+  s_11106e1ec74c31::t_9ed2ef6df27413 10-26
+apps/api/src/chat/chat.controller.ts
+  s_11106e1ec74c31::t_5c75e3ba511711 7
+  s_11106e1ec74c31::t_828824bf142670 30
+  s_11106e1ec74c31::t_ee11a9c52a6111 19
+apps/web/components/profile-checklist.tsx
+  s_11106e1ec74c31::t_5b84bc4d13d9b4 40,46,64
+  s_11106e1ec74c31::t_ac0fada2c2b6b7 4
+  s_11106e1ec74c31::t_5fcc068774e6c3 1-3,5-39,41-45,47-63,65-140
+apps/web/app/tutors/edit/page.tsx
+  s_11106e1ec74c31::t_badef44005dae5 268-278
+  s_11106e1ec74c31::t_61207575c66a25 595-600
+  s_11106e1ec74c31::t_c692f7778258ea 76
+  s_11106e1ec74c31::t_866aef0ba1e5ef 115
+  s_11106e1ec74c31::t_4b6a6b3e2aef5a 73
+apps/web/components/verified-badge.tsx
+  s_11106e1ec74c31::t_19404562762ea3 1-12
+apps/api/prisma/migration_lock.toml
+  s_11106e1ec74c31::t_e361afd1975966 1-3
+apps/web/app/reviews/page.tsx
+  s_11106e1ec74c31::t_6392e6963ae168 18-32,34-52,54-64,66,68-84,86,89-97,99-109,111,113-129,131,134-140,142-146,148
+apps/web/app/register/page.tsx
+  s_11106e1ec74c31::t_38d1c90e4fea78 10-26
+apps/web/components/header.tsx
+  s_11106e1ec74c31::t_7acf42aab656b6 8,35-37,39,43,47-48,55-77,81-84,92-96,98,106-109,114,125-147,150,152-157,159,161-163,169-186,190-192,195-196,200-201,211-219
+apps/web/components/tutor-card.tsx
+  s_11106e1ec74c31::t_d7cef86ed62371 5,28,39
+  s_11106e1ec74c31::t_c63c227ac1b89e 9-16,18-24,27,29-38,40-61,63
+apps/api/src/tutors/tutors.service.ts
+  s_11106e1ec74c31::t_799f310598fbf4 121
+  s_11106e1ec74c31::t_28ba74ec41660f 147
+  s_11106e1ec74c31::t_8b96484b17f81e 175
+apps/web/components/student-dashboard.tsx
+  s_11106e1ec74c31::t_c5091a20396f05 1-2,4-6,21-23,26-36,38-48,50-74,76-78,80-86,88,92-99,102-138
+apps/web/lib/analytics.ts
+  s_11106e1ec74c31::t_c9ee3d37f34223 1-21
+apps/web/app/login/login-form.tsx
+  s_11106e1ec74c31::t_8c6954a39a382f 40
+  s_11106e1ec74c31::t_24a6593ae7b3e7 33-34,36,38-39,41-50
+  s_11106e1ec74c31::t_32b71c4d63466b 51-52
+apps/web/components/notifications-list.tsx
+  s_11106e1ec74c31::t_3ca80d69332b4c 25-26,28-61,64,73-76,78,80,83-93,95-97,99-113
+apps/web/app/wallet/page.tsx
+  s_11106e1ec74c31::t_1442f9d5340391 5,8-10,49-55,58-129,131-176,178
+apps/web/components/verification-status.tsx
+  s_11106e1ec74c31::t_802709231bb782 160,168
+  s_11106e1ec74c31::t_aa206ff9862969 194,205
+  s_11106e1ec74c31::t_0d3d23ef030098 1-108,110-137,139-159,161-167,169-193,195-204,206-225
+  s_11106e1ec74c31::t_543564df90e4ca 109
+  s_11106e1ec74c31::t_a50c4d8c5e98f5 138
+apps/web/app/jobs/page.tsx
+  s_11106e1ec74c31::t_09d3b2dccec0d0 26-27,29-33,39,41,44-47,49,51-56,58-66,68-94
+apps/web/components/role-switch.tsx
+  s_11106e1ec74c31::t_cc4906e246b464 41,45-50,57-62
+  s_11106e1ec74c31::t_eb0b1f444ecdf2 3,10,14-17,19-24,28-30,32-37
+  s_11106e1ec74c31::t_cadd3632a1e051 18,31
+apps/web/components/action-card.tsx
+  s_11106e1ec74c31::t_fecdc390fcdab5 4
+  s_11106e1ec74c31::t_0a071f92d6359d 7,16-17,20,26-28
+  s_11106e1ec74c31::t_6650a6768de28a 1-3,5-6,8-15,18-19,21-25,29-57
+packages/shared/src/constants.ts
+  s_11106e1ec74c31::t_4a1d3ea40ec86b 85-89
+apps/web/components/student-phone-action-card.spec.tsx
+  s_11106e1ec74c31::t_9204b7339bec79 1-78
+apps/api/src/flags/flags.module.ts
+  s_11106e1ec74c31::t_74f1920e18ee92 5,8
+apps/web/components/job-requirement-form.tsx
+  s_11106e1ec74c31::t_c3f17779808274 57
+  s_11106e1ec74c31::t_6693134495370e 50
+  s_11106e1ec74c31::t_3023d134daa449 68
+apps/api/src/tutors/dto/update-tutor.dto.ts
+  s_11106e1ec74c31::t_e70343558f21b6 63-64
+  s_11106e1ec74c31::t_ac31014d5568dd 61-62
+apps/web/app/notifications/page.tsx
+  s_11106e1ec74c31::t_07b28940b1d860 11,13-26
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "c4d316014ab1479a619e25857b36564264422460",
+  "prompts": {},
+  "sessions": {
+    "s_11106e1ec74c31": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "30dbd06b-d401-40e9-a3c1-6dee25cb5a57",
+        "model": "us.anthropic.claude-opus-4-5-20251101-v1:0"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
