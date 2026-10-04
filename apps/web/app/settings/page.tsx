@@ -5,6 +5,10 @@ import { useRouter } from "next/navigation";
 import { Button, Input, Select } from "@wtws/ui";
 import { apiClient } from "@/lib/client";
 import { AccountControls } from "@/components/account-controls";
+import { VerificationStatus } from "@/components/verification-status";
+import { PageHeader } from "@/components/ui/page-header";
+import { Section } from "@/components/ui/cards";
+import { Icons } from "@/components/ui/icons";
 import type { Me } from "@/lib/api";
 
 export default function SettingsPage() {
@@ -63,61 +67,124 @@ export default function SettingsPage() {
     }
   }
 
-  if (!me) return <p>{error || "Loading…"}</p>;
+  if (!me) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <p className="text-slate-500">{error || "Loading…"}</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-xl">
-      <h1 className="text-3xl font-bold">Settings</h1>
-      <p className="mt-2 text-sm text-[rgb(var(--muted-foreground))]">
-        {me.email} · {me.emailVerified ? "email verified" : "email not verified"} ·{" "}
-        {me.phoneVerified ? "phone verified" : "phone not verified"}
-      </p>
-      {!me.emailVerified ? (
-        <a href="/verify" className="mt-2 inline-block text-sm font-semibold text-[rgb(var(--wtws-blue))]">
-          Verify your email
-        </a>
-      ) : null}
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
-        <label className="block text-sm font-medium">
-          Name
-          <Input className="mt-1" value={name} onChange={(e) => setName(e.target.value)} required minLength={2} />
-        </label>
-        <label className="block text-sm font-medium">
-          Phone
-          <Input className="mt-1" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+919876543210" />
-        </label>
-        <label className="block text-sm font-medium">
-          City
-          <Input className="mt-1" value={city} onChange={(e) => setCity(e.target.value)} />
-        </label>
-        <label className="block text-sm font-medium">
-          Country
-          <Input className="mt-1" value={country} onChange={(e) => setCountry(e.target.value)} />
-        </label>
-        <label className="block text-sm font-medium">
-          New posts visibility
-          <Select className="mt-1" value={visibility} onChange={(e) => setVisibility(e.target.value)}>
-            <option value="PUBLIC">Always make public</option>
-            <option value="PRIVATE">Private unless I choose public</option>
-          </Select>
-        </label>
-        {me.roles.includes("TUTOR") ? (
-          <>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
-              Profile visible in search (uncheck to take a break)
+    <div className="space-y-8">
+      <PageHeader
+        badge="Settings"
+        badgeColor="slate"
+        title="Settings"
+        subtitle="Manage your account preferences and profile settings."
+      />
+
+      <Section title="Verification" badge={me.emailVerified && me.phoneVerified ? "Verified" : "Pending"} badgeColor={me.emailVerified && me.phoneVerified ? "emerald" : "orange"}>
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+          <VerificationStatus me={me} onVerified={() => router.refresh()} />
+        </div>
+      </Section>
+
+      <Section title="Profile Information" badge="Edit" badgeColor="blue">
+        <form onSubmit={onSubmit} className="rounded-2xl border border-slate-200 bg-white p-6">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Name</span>
+              <Input 
+                className="mt-1.5" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                required 
+                minLength={2} 
+              />
             </label>
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={notify} onChange={(e) => setNotify(e.target.checked)} />
-              Notify me about matching jobs
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Phone</span>
+              <Input 
+                className="mt-1.5" 
+                value={phone} 
+                onChange={(e) => setPhone(e.target.value)} 
+                placeholder="+1234567890"
+              />
             </label>
-          </>
-        ) : null}
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        {saved ? <p className="text-sm text-[rgb(var(--wtws-teal))]">Saved.</p> : null}
-        <Button type="submit">Save settings</Button>
-      </form>
-      <AccountControls />
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">City</span>
+              <Input 
+                className="mt-1.5" 
+                value={city} 
+                onChange={(e) => setCity(e.target.value)} 
+                placeholder="e.g. Mumbai"
+              />
+            </label>
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Country</span>
+              <Input 
+                className="mt-1.5" 
+                value={country} 
+                onChange={(e) => setCountry(e.target.value)} 
+                placeholder="e.g. India"
+              />
+            </label>
+          </div>
+
+          <div className="mt-6 border-t border-slate-100 pt-6">
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Default post visibility</span>
+              <Select className="mt-1.5" value={visibility} onChange={(e) => setVisibility(e.target.value)}>
+                <option value="PUBLIC">Always make public</option>
+                <option value="PRIVATE">Private unless I choose public</option>
+              </Select>
+            </label>
+          </div>
+
+          {me.roles.includes("TUTOR") && (
+            <div className="mt-6 space-y-3 border-t border-slate-100 pt-6">
+              <p className="text-sm font-medium text-slate-700">Tutor Settings</p>
+              <label className="flex items-center gap-3 rounded-xl border border-slate-200 p-4 hover:bg-slate-50">
+                <input 
+                  type="checkbox" 
+                  checked={published} 
+                  onChange={(e) => setPublished(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-[rgb(var(--wtws-blue))]"
+                />
+                <div>
+                  <p className="font-medium text-slate-900">Profile visible in search</p>
+                  <p className="text-sm text-slate-500">Uncheck to take a break from receiving inquiries</p>
+                </div>
+              </label>
+              <label className="flex items-center gap-3 rounded-xl border border-slate-200 p-4 hover:bg-slate-50">
+                <input 
+                  type="checkbox" 
+                  checked={notify} 
+                  onChange={(e) => setNotify(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-[rgb(var(--wtws-blue))]"
+                />
+                <div>
+                  <p className="font-medium text-slate-900">Notify me about matching jobs</p>
+                  <p className="text-sm text-slate-500">Get notified when new jobs match your skills</p>
+                </div>
+              </label>
+            </div>
+          )}
+
+          <div className="mt-6 flex items-center gap-4 border-t border-slate-100 pt-6">
+            <Button type="submit">Save Settings</Button>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+            {saved && <p className="text-sm text-emerald-600">✓ Settings saved successfully</p>}
+          </div>
+        </form>
+      </Section>
+
+      <Section title="Account" badge="Manage" badgeColor="slate">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+          <AccountControls />
+        </div>
+      </Section>
     </div>
   );
 }

@@ -47,14 +47,14 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
     modes: (job?.modes ?? ["ONLINE"]) as TeachingMode[],
     visibility: (job?.visibility ?? "PUBLIC") as "PUBLIC" | "PRIVATE",
     city: job?.city ?? "",
-    country: job?.country ?? "",
+    country: job?.country ?? "India",
     budgetMin: job?.budgetMin != null ? String(job.budgetMin / 100) : "",
     budgetMax: job?.budgetMax != null ? String(job.budgetMax / 100) : "",
     whenNeeded: job?.whenNeeded ?? "FLEXIBLE",
     frequency: job?.frequency ?? "WEEKLY",
     budgetType: job?.budgetType ?? "HOURLY",
     genderPref: job?.genderPref ?? "ANY",
-    currency: job?.currency ?? "USD",
+    currency: job?.currency ?? "INR",
   });
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
         setForm((f) => ({
           ...f,
           city: f.city || me.city || "",
-          country: f.country || me.country || "",
+          country: f.country || me.country || "India",
           visibility: (me.defaultVisibility as "PUBLIC" | "PRIVATE") || f.visibility,
         }));
       })

@@ -70,10 +70,10 @@ export default function EditTutorProfilePage() {
     bio: "",
     hourlyRate: "",
     hourlyRateMax: "",
-    currency: "USD",
+    currency: "INR",
     rateType: "HOURLY" as RateType,
     city: "",
-    country: "",
+    country: "India",
     timezone: "UTC",
     skills: [] as TutorSkill[],
     languages: ["English"] as string[],
@@ -112,7 +112,7 @@ export default function EditTutorProfilePage() {
           bio: t.bio ?? "",
           hourlyRate: t.hourlyRateMinor != null ? String(t.hourlyRateMinor / 100) : "",
           hourlyRateMax: t.hourlyRateMaxMinor != null ? String(t.hourlyRateMaxMinor / 100) : "",
-          currency: t.currency || "USD",
+          currency: t.currency || "INR",
           rateType: ((t.rateType as RateType) || "HOURLY") as RateType,
           city: t.city ?? "",
           country: t.country ?? "",
@@ -265,12 +265,17 @@ export default function EditTutorProfilePage() {
     form.rateType === "MONTHLY" ? "Monthly rate" : form.rateType === "COURSE" ? "Course fee" : "Hourly rate";
 
   return (
-    <div className="mx-auto max-w-xl">
-      <h1 className="text-3xl font-bold">Teaching profile</h1>
-      <p className="mt-2 text-sm text-[rgb(var(--muted-foreground))]">
-        Public page students see. Phone stays hidden until a student pays. Fields marked * are required.
-      </p>
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
+    <div className="space-y-8">
+      <div>
+        <span className="inline-block rounded-lg bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+          Edit Profile
+        </span>
+        <h1 className="mt-3 text-3xl font-bold text-slate-900">Teaching profile</h1>
+        <p className="mt-2 text-slate-600">
+          Public page students see. Phone stays hidden until a student pays. Fields marked * are required.
+        </p>
+      </div>
+      <form onSubmit={onSubmit} className="space-y-6">
         <div>
           <p className="text-sm font-medium">Profile photo</p>
           <div className="mt-2 flex items-center gap-4">
@@ -587,10 +592,12 @@ export default function EditTutorProfilePage() {
             onChange={(e) => setForm({ ...form, timezone: e.target.value })}
           />
         </label>
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <Button type="submit" disabled={loading}>
-          {loading ? "Saving…" : "Save and view profile"}
-        </Button>
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        <div className="flex gap-3 pt-4 border-t border-slate-200">
+          <Button type="submit" disabled={loading}>
+            {loading ? "Saving…" : "Save and view profile"}
+          </Button>
+        </div>
       </form>
     </div>
   );

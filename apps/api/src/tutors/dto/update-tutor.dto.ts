@@ -60,6 +60,10 @@ export class UpdateTutorDto {
 
   @IsOptional()
   @IsString()
+  photoUrl?: string;
+
+  @IsOptional()
+  @IsString()
   timezone?: string;
 
   @IsOptional()

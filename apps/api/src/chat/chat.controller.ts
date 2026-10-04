@@ -4,7 +4,7 @@ import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CurrentUser, type AuthUser } from "../auth/current-user.decorator";
 import { ChatService } from "./chat.service";
 
-class IntroDto {
+class ApplyJobDto {
   @IsString()
   @MinLength(12)
   message: string;
@@ -16,7 +16,7 @@ class SendDto {
   body: string;
 }
 
-class MessageTutorDto extends IntroDto {
+class MessageTutorDto extends ApplyJobDto {
   @IsString()
   tutorUserId: string;
 }
@@ -27,7 +27,7 @@ export class ChatController {
   constructor(private readonly chat: ChatService) {}
 
   @Post("jobs/:id/apply")
-  apply(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() dto: IntroDto) {
+  apply(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() dto: ApplyJobDto) {
     return this.chat.applyToJob(user.sub, id, dto.message);
   }
 

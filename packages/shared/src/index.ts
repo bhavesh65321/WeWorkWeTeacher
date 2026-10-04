@@ -53,6 +53,8 @@ export type TutorCard = {
   ratingAvg: number;
   reviewCount: number;
   isPremium?: boolean;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
   reviews?: TutorReview[];
 };
 

@@ -2,18 +2,18 @@ import Link from "next/link";
 
 export function BrandMark() {
   return (
-    <Link href="/" className="group flex items-center gap-2.5">
-      <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[rgb(var(--wtws-blue))] text-xl font-black text-white group-hover:bg-[rgb(var(--wtws-blue-dark))]">
+    <Link href="/" className="group flex items-center gap-2">
+      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[rgb(var(--wtws-blue))] text-lg font-black text-white transition group-hover:bg-[rgb(var(--wtws-blue-dark))]">
         W
       </span>
-      <span className="flex flex-col leading-none">
-        <span className="text-xl font-extrabold tracking-tight text-[rgb(var(--foreground))] group-hover:text-[rgb(var(--wtws-blue))] sm:text-2xl">
+      <div className="flex flex-col">
+        <span className="text-lg font-bold tracking-tight text-slate-900 group-hover:text-[rgb(var(--wtws-blue))]">
           WTWS
         </span>
-        <span className="-mt-0.5 hidden text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--muted-foreground))] sm:inline">
+        <span className="-mt-1 hidden text-[9px] font-medium uppercase tracking-wide text-slate-400 sm:block">
           WeTeacherWeStudent
         </span>
-      </span>
+      </div>
     </Link>
   );
 }

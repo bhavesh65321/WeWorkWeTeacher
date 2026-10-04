@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
-import { Card } from "@wtws/ui";
+import { PageHeader, StatCard, CompletedBadges } from "./ui/page-header";
+import { ActionCard, InfoCard, Section, FilterButtons, EmptyState } from "./ui/cards";
+import { Icons } from "./ui/icons";
 import { JobCardView } from "@/components/job-card";
 import type { JobCard } from "@wtws/shared";
 
@@ -14,76 +18,124 @@ export function StudentDashboard({
   phone: string | null;
   jobs: JobCard[];
 }) {
-  const action = [];
-  if (!phone) {
-    action.push({ href: "/settings", title: "Add phone", body: "Tutors see this only after you pay." });
-  }
-  if (jobs.length === 0) {
-    action.push({ href: "/jobs/new", title: "Post a requirement", body: "Tell tutors the subject, city, and budget." });
-  }
+  const completedItems: string[] = [];
+  if (phone) completedItems.push("Phone added");
+  if (jobs.length > 0) completedItems.push(`${jobs.length} job${jobs.length > 1 ? "s" : ""} posted`);
 
   return (
-    <div>
-      <Link
-        href="/jobs/new"
-        className="inline-flex min-h-11 items-center rounded-xl bg-[rgb(var(--wtws-blue))] px-4 text-sm font-semibold text-white"
+    <div className="space-y-8">
+      <PageHeader
+        badge="Student Dashboard"
+        badgeColor="emerald"
+        title="Student dashboard"
+        subtitle={
+          <>
+            Hi <span className="font-medium">{name}</span>. Post a need, wait for applies, then pay in WTWS.
+            <CompletedBadges items={completedItems} />
+          </>
+        }
       >
-        + Post requirement
-      </Link>
-      <div className="mt-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <h1 className="text-3xl font-bold">Student dashboard</h1>
-        <Link href="/wallet" className="rounded-2xl border border-[rgb(var(--wtws-blue))] px-4 py-3 text-sm">
-          <p className="font-semibold">{coins} coins</p>
-          <p className="text-[rgb(var(--muted-foreground))]">Your wallet balance</p>
-        </Link>
-      </div>
-      <p className="mt-1 text-sm text-[rgb(var(--muted-foreground))]">Hi {name}. Post a need, wait for applies, then pay in WTWS.</p>
+        <StatCard
+          icon={<span className="text-emerald-600">{Icons.coin}</span>}
+          label={`${coins} coins`}
+          sublabel="Your wallet balance"
+          badge="Available"
+          badgeColor="emerald"
+          href="/wallet"
+          buttonText="Top Up Wallet"
+          gradient
+        />
+      </PageHeader>
 
-      {action.length ? (
-        <section className="mt-8">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold">Action needed</h2>
-            <span className="rounded-full bg-red-50 px-2.5 py-0.5 text-xs font-semibold text-red-700">Urgent</span>
-          </div>
-          <div className="mt-3 grid gap-3 sm:grid-cols-2">
-            {action.map((item) => (
-              <Link key={item.href} href={item.href}>
-                <Card className="h-full border-red-200">
-                  <h3 className="font-semibold">{item.title}</h3>
-                  <p className="mt-1 text-sm text-[rgb(var(--muted-foreground))]">{item.body}</p>
-                </Card>
-              </Link>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {phone ? (
-        <section className="mt-8">
-          <h2 className="text-lg font-bold">Completed</h2>
-          <p className="mt-3 inline-flex rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-medium text-emerald-800">
-            Phone added
-          </p>
-        </section>
-      ) : null}
-
-      <section className="mt-10">
-        <div className="flex items-end justify-between">
-          <h2 className="text-xl font-bold">My requirements</h2>
-          <Link href="/jobs/mine" className="text-sm font-semibold text-[rgb(var(--wtws-blue))]">
-            See all
-          </Link>
+      <Section title="Quick Actions" badge="Get started" badgeColor="blue">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <ActionCard
+            icon={Icons.plus}
+            title="Post a requirement"
+            description="Tell tutors the subject, city, and budget. Get applications from qualified tutors."
+            href="/jobs/new"
+            buttonText="Post Requirement →"
+          />
+          <ActionCard
+            icon={Icons.search}
+            title="Find tutors"
+            description="Browse verified tutor profiles by subject, location, and teaching mode."
+            href="/tutors"
+            buttonText="Browse Tutors"
+            buttonVariant="outline"
+          />
+          <ActionCard
+            icon={Icons.chat}
+            title="Messages"
+            description="Chat with tutors who applied to your jobs. Unlock contact after payment."
+            href="/inbox"
+            buttonText="View Messages"
+            buttonVariant="outline"
+          />
         </div>
+      </Section>
+
+      <Section title="My Requirements" badge={`${jobs.length} posted`} badgeColor="slate" rightText={jobs.length > 0 ? "Manage your job posts" : undefined}>
         {jobs.length === 0 ? (
-          <p className="mt-3 text-sm text-[rgb(var(--muted-foreground))]">No posts yet.</p>
+          <EmptyState
+            icon={Icons.document}
+            title="No requirements posted yet"
+            description="Post your first requirement to start receiving applications from qualified tutors."
+            href="/jobs/new"
+            buttonText="Post Your First Requirement"
+          />
         ) : (
-          <div className="mt-2">
+          <div className="space-y-3">
             {jobs.slice(0, 5).map((j) => (
               <JobCardView key={j.id} job={j} />
             ))}
+            {jobs.length > 5 && (
+              <Link
+                href="/jobs/mine"
+                className="block text-center text-sm font-semibold text-[rgb(var(--wtws-blue))] hover:underline"
+              >
+                View all {jobs.length} requirements →
+              </Link>
+            )}
           </div>
         )}
-      </section>
+      </Section>
+
+      <Section title="Optional" badge="Earn more coins" badgeColor="slate">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <InfoCard
+            icon={<span className="text-blue-500">{Icons.users}</span>}
+            title="Invite friends"
+            description="Both of you get free coin bonuses on registration."
+            badge="+20 Coins"
+            badgeColor="emerald"
+          >
+            <div className="mt-3">
+              <FilterButtons
+                filters={[
+                  { label: "Share Invite Link", href: "/wallet" },
+                ]}
+              />
+            </div>
+          </InfoCard>
+
+          <InfoCard
+            icon={<span className="text-teal-500">{Icons.briefcase}</span>}
+            title="Browse all jobs"
+            description="See what other students are looking for."
+          >
+            <div className="mt-3">
+              <FilterButtons
+                filters={[
+                  { label: "All Jobs", href: "/jobs", active: true },
+                  { label: "Online", href: "/jobs?mode=ONLINE" },
+                  { label: "Home", href: "/jobs?mode=HOME" },
+                ]}
+              />
+            </div>
+          </InfoCard>
+        </div>
+      </Section>
     </div>
   );
 }

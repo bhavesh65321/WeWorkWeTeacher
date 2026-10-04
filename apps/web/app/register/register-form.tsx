@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button, Input } from "@wtws/ui";
 import { apiClient } from "@/lib/client";
 import { persistSession } from "@/lib/session";
+import { track } from "@/lib/analytics";
 import { GoogleButton } from "@/components/google-button";
 
 export function RegisterForm() {
@@ -44,6 +45,7 @@ export function RegisterForm() {
         }),
       });
       await persistSession(created.token);
+      track("signup_completed", { activeRole: asTutor ? "TUTOR" : "STUDENT" });
       if (asTutor) {
         await apiClient("/auth/enable-tutor", { method: "POST" });
         await apiClient("/auth/role", { method: "POST", body: JSON.stringify({ role: "TUTOR" }) });

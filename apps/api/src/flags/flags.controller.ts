@@ -3,7 +3,7 @@ import { FlagsService } from "./flags.service";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 
 interface AuthRequest extends Request {
-  user?: { id: string; roles: string[] };
+  user?: { sub: string; roles: string[] };
 }
 
 @Controller("flags")
@@ -14,7 +14,7 @@ export class FlagsController {
   @UseGuards(JwtAuthGuard)
   async create(@Request() req: AuthRequest, @Body() body: { targetType: string; targetId: string; reason: string; notes?: string }) {
     if (!req.user) throw new ForbiddenException();
-    return this.flags.create(req.user.id, body.targetType, body.targetId, body.reason, body.notes);
+    return this.flags.create(req.user.sub, body.targetType, body.targetId, body.reason, body.notes);
   }
 
   @Get()

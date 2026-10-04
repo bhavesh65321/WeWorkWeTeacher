@@ -1,9 +1,7 @@
 export async function persistSession(token: string) {
-  await fetch("/auth/session", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ token }),
-  });
+  if (typeof window !== "undefined") {
+    localStorage.setItem("wtws_token", token);
+  }
 }
 
 export function afterAuthPath(opts: { needsVerify?: boolean; next?: string | null }) {

@@ -1,13 +1,20 @@
-const API = typeof window === "undefined" ? (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000") : "";
-
 export async function apiClient<T>(path: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(`${API}/api${path}`, {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(init?.headers as Record<string, string> ?? {}),
+  };
+
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("wtws_token");
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+
+  const res = await fetch(`/api${path}`, {
     ...init,
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
+    headers,
   });
   const body = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -20,9 +27,19 @@ export async function apiClient<T>(path: string, init?: RequestInit): Promise<T>
 export async function apiUpload<T>(path: string, file: File): Promise<T> {
   const data = new FormData();
   data.append("file", file);
-  const res = await fetch(`${API}/api${path}`, {
+
+  const headers: Record<string, string> = {};
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("wtws_token");
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+
+  const res = await fetch(`/api${path}`, {
     method: "POST",
     credentials: "include",
+    headers,
     body: data,
   });
   const body = await res.json().catch(() => ({}));

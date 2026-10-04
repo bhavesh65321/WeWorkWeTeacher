@@ -118,6 +118,7 @@ export class TutorsService {
       rateType?: string;
       city?: string;
       country?: string;
+      photoUrl?: string;
       timezone?: string;
       skills?: { name: string; level: string }[];
       modes?: TeachingMode[];
@@ -143,7 +144,7 @@ export class TutorsService {
     const fullSave = data.headline !== undefined || skills !== undefined;
     const rateType = data.rateType ?? profile.rateType ?? "HOURLY";
     const merged = {
-      photoUrl: profile.photoUrl,
+      photoUrl: data.photoUrl ?? profile.photoUrl,
       headline: data.headline ?? profile.headline,
       bio: data.bio ?? profile.bio,
       hourlyRateMinor: data.hourlyRateMinor ?? profile.hourlyRateMinor,
@@ -171,6 +172,7 @@ export class TutorsService {
         rateType: data.rateType,
         city: data.city,
         country: data.country,
+        photoUrl: data.photoUrl,
         timezone: data.timezone,
         subjects: skills ? jsonSkills(skills) : undefined,
         modes: data.modes ? jsonList(data.modes) : undefined,

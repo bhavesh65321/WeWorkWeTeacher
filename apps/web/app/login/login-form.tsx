@@ -30,11 +30,26 @@ export function LoginForm() {
           password: data.get("password"),
         }),
       });
+      
+      // Store token in localStorage
       await persistSession(res.token);
+      
       if (next?.startsWith("/")) sessionStorage.setItem("wtws_next", next);
-      const me = await apiClient<Me>("/auth/me");
-      router.push(afterAuthPath({ needsVerify: !me.emailVerified, next }));
-      router.refresh();
+      
+      // Get user info with the token we just received
+      const meRes = await fetch(`/api/auth/me`, {
+        headers: {
+          "Authorization": `Bearer ${res.token}`,
+        },
+      });
+      
+      if (!meRes.ok) {
+        throw new Error("Failed to get user info");
+      }
+      
+      const me = await meRes.json() as Me;
+      const redirectPath = afterAuthPath({ needsVerify: !me.emailVerified, next });
+      router.push(redirectPath);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
     } finally {
