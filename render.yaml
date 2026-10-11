@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: wtws-api
+    runtime: node
+    buildCommand: npm install -g pnpm && pnpm install && cd apps/api && npx prisma generate && pnpm build
+    startCommand: cd apps/api && node dist/main.js
+    envVars:
+      - key: NODE_VERSION
+        value: 20
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: WEB_ORIGIN
+        sync: false
