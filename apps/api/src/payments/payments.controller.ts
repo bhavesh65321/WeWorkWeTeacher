@@ -13,11 +13,6 @@ class CheckoutCoinsDto {
   coins: number;
 }
 
-class CheckoutEscrowDto {
-  @IsString()
-  bookingId: string;
-}
-
 class ConfirmDto {
   @IsOptional()
   @IsString()
@@ -37,12 +32,6 @@ export class PaymentsController {
   @UseGuards(JwtAuthGuard)
   checkoutCoins(@CurrentUser() user: AuthUser, @Body() dto: CheckoutCoinsDto) {
     return this.payments.checkoutCoins(user.sub, dto.coins);
-  }
-
-  @Post("checkout/escrow")
-  @UseGuards(JwtAuthGuard)
-  checkoutEscrow(@CurrentUser() user: AuthUser, @Body() dto: CheckoutEscrowDto) {
-    return this.payments.checkoutEscrow(user.sub, dto.bookingId);
   }
 
   @Get("confirm")

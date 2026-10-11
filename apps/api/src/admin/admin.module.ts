@@ -4,10 +4,8 @@ import { AuthModule } from "../auth/auth.module";
 import { WalletModule } from "../wallet/wallet.module";
 import { ChatModule } from "../chat/chat.module";
 
-import { BookingModule } from "../booking/booking.module";
-
 @Module({
-  imports: [AuthModule, WalletModule, ChatModule, BookingModule],
+  imports: [AuthModule, WalletModule, ChatModule],
   controllers: [AdminController],
 })
 export class AdminModule {}

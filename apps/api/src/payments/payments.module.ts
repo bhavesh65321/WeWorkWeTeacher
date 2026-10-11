@@ -3,10 +3,9 @@ import { PaymentsService } from "./payments.service";
 import { PaymentsController } from "./payments.controller";
 import { AuthModule } from "../auth/auth.module";
 import { WalletModule } from "../wallet/wallet.module";
-import { BookingModule } from "../booking/booking.module";
 
 @Module({
-  imports: [AuthModule, WalletModule, BookingModule],
+  imports: [AuthModule, WalletModule],
   controllers: [PaymentsController],
   providers: [PaymentsService],
 })

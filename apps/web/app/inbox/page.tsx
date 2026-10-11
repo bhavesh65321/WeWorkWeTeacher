@@ -11,7 +11,7 @@ type Thread = {
   jobTitle: string;
   lastMessage: string;
   lastAt: string | null;
-  escrowFunded: boolean;
+  contactUnlocked: boolean;
 };
 
 export default async function InboxPage() {
@@ -30,7 +30,7 @@ export default async function InboxPage() {
           </span>
           <h1 className="mt-3 text-3xl font-bold text-slate-900">Inbox</h1>
           <p className="mt-2 text-slate-600">
-            Chat here anytime. Phone and WhatsApp appear after the student pays.
+            Chat here anytime. Unlock contact with coins to see phone and WhatsApp.
           </p>
         </div>
       </div>
@@ -59,9 +59,9 @@ export default async function InboxPage() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-3">
                     <p className="font-semibold text-slate-900">{t.otherName}</p>
-                    {t.escrowFunded && (
+                    {t.contactUnlocked && (
                       <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700">
-                        Paid
+                        Unlocked
                       </span>
                     )}
                   </div>

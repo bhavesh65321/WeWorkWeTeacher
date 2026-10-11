@@ -29,7 +29,7 @@ export function Footer() {
           </div>
         </div>
         <div className="flex flex-col items-center justify-between gap-4 text-xs text-slate-400 sm:flex-row">
-          <p>© 2026 WeTeacherWeStudent (WTWS). Coins and escrow.</p>
+          <p>© 2026 WeTeacherWeStudent (WTWS). Coins, Cards & UPI.</p>
           <p className="flex items-center gap-1">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
             Open GA · classroom later

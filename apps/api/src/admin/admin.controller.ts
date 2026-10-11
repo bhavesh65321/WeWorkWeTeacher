@@ -6,7 +6,6 @@ import { CurrentUser, type AuthUser } from "../auth/current-user.decorator";
 import { PrismaService } from "../prisma/prisma.service";
 import { WalletService } from "../wallet/wallet.service";
 import { ChatService } from "../chat/chat.service";
-import { BookingService } from "../booking/booking.service";
 import { asStringArray } from "../json-list";
 import { track } from "../analytics";
 
@@ -51,7 +50,6 @@ export class AdminController {
     private readonly prisma: PrismaService,
     private readonly wallet: WalletService,
     private readonly chat: ChatService,
-    private readonly bookings: BookingService,
   ) {}
 
   private async assertAdmin(userId: string) {
@@ -62,14 +60,14 @@ export class AdminController {
   @Get("overview")
   async overview(@CurrentUser() user: AuthUser) {
     await this.assertAdmin(user.sub);
-    const [users, jobs, flags, holds, tickets] = await Promise.all([
+    const [users, jobs, flags, tickets, payments] = await Promise.all([
       this.prisma.user.count({ where: { deletedAt: null } }),
       this.prisma.job.count(),
       this.prisma.flag.findMany({ where: { status: "OPEN" }, orderBy: { createdAt: "desc" }, take: 50 }),
-      this.prisma.escrowHold.findMany({ take: 30, orderBy: { createdAt: "desc" }, include: { booking: true } }),
       this.prisma.supportTicket.findMany({ where: { status: "OPEN" }, orderBy: { createdAt: "desc" }, take: 50 }),
+      this.prisma.payment.findMany({ where: { status: "PAID" }, orderBy: { createdAt: "desc" }, take: 30 }),
     ]);
-    return { users, jobs, flags, holds, tickets };
+    return { users, jobs, flags, tickets, payments };
   }
 
   @Post("flags")
@@ -105,12 +103,6 @@ export class AdminController {
       where: { id },
       data: { status: "CLOSED", adminNote: body.note },
     });
-  }
-
-  @Post("bookings/:id/refund")
-  async refundBooking(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() body: { note?: string }) {
-    await this.assertAdmin(user.sub);
-    return this.bookings.refundDispute(body.note || "Admin refund", id);
   }
 
   @Post("jobs/:id/spam")

@@ -87,8 +87,7 @@ export default async function HomePage() {
               Only published tutor profiles appear in search
             </h2>
             <p className="text-sm leading-relaxed text-blue-100 sm:text-base">
-              Complete a teaching profile, set your rate, and stay visible. Students pay into escrow before contact is
-              unlocked.
+              Complete a teaching profile, set your rate, and stay visible. Students unlock contact with coins to connect directly.
             </p>
           </div>
           <Link
@@ -102,16 +101,16 @@ export default async function HomePage() {
 
       <section className="grid grid-cols-1 gap-6 md:grid-cols-3">
         <TrustCard
-          title="Escrow payment protection"
-          body="Student funds are held until the session is done. Release to the tutor, or dispute if it never happened."
+          title="Coin-based marketplace"
+          body="Buy coin packs with Card or UPI. Use coins to apply to jobs, message tutors, and unlock contacts."
         />
         <TrustCard
           title="Coins to apply"
-          body="Tutors spend coins to apply to matching jobs. Chat stays in WTWS until the student pays."
+          body="Tutors spend coins to apply to matching jobs. Chat stays in WTWS until contact is unlocked."
         />
         <TrustCard
-          title="Contact after pay"
-          body="Phone and WhatsApp unlock only after escrow is funded. No leaking numbers in the first message."
+          title="Contact after unlock"
+          body="Phone and WhatsApp unlock only after spending coins. No leaking numbers in the first message."
         />
       </section>
 

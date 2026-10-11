@@ -3,7 +3,6 @@ import { ConfigService } from "@nestjs/config";
 import Stripe from "stripe";
 import { PrismaService } from "../prisma/prisma.service";
 import { WalletService } from "../wallet/wallet.service";
-import { BookingService } from "../booking/booking.service";
 import { COIN_PACKS } from "../marketplace-rules";
 import { track } from "../analytics";
 
@@ -15,7 +14,6 @@ export class PaymentsService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
     private readonly wallet: WalletService,
-    private readonly bookings: BookingService,
   ) {
     const key = this.config.get<string>("STRIPE_SECRET_KEY");
     if (key) this.stripe = new Stripe(key);
@@ -36,6 +34,7 @@ export class PaymentsService {
     }
     const pack = COIN_PACKS.find((p) => p.coins === coins);
     if (!pack) throw new BadRequestException("Unknown pack");
+
     if (!this.stripe) {
       await this.wallet.creditCoins(userId, pack.coins, "PURCHASE", `Sandbox pack ${pack.coins}`);
       await this.prisma.payment.create({
@@ -49,8 +48,10 @@ export class PaymentsService {
           paidAt: new Date(),
         },
       });
+      track("coins_purchased", userId, user?.activeRole ?? "STUDENT", { coins: pack.coins, mode: "sandbox" });
       return { mode: "sandbox" as const, credited: true };
     }
+
     const payment = await this.prisma.payment.create({
       data: {
         userId,
@@ -61,8 +62,10 @@ export class PaymentsService {
         provider: "STRIPE",
       },
     });
+
     const session = await this.stripe.checkout.sessions.create({
       mode: "payment",
+      payment_method_types: ["card"],
       success_url: `${this.web()}/wallet?paid=1&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${this.web()}/wallet?canceled=1`,
       client_reference_id: payment.id,
@@ -71,70 +74,19 @@ export class PaymentsService {
         {
           quantity: 1,
           price_data: {
-            currency: "usd",
+            currency: "inr",
             unit_amount: pack.amountMinor,
             product_data: { name: `${pack.coins} WTWS coins` },
           },
         },
       ],
     });
-    await this.prisma.payment.update({
-      where: { id: payment.id },
-      data: { providerRef: session.id },
-    });
-    return { mode: "stripe" as const, url: session.url };
-  }
 
-  async checkoutEscrow(userId: string, bookingId: string) {
-    const booking = await this.prisma.booking.findUnique({ where: { id: bookingId }, include: { escrow: true } });
-    if (!booking || booking.studentId !== userId) throw new ForbiddenException();
-    if (booking.escrow) throw new BadRequestException("Already funded");
-    if (!this.stripe) {
-      await this.bookings.paySandbox(userId, bookingId);
-      await this.prisma.payment.create({
-        data: {
-          userId,
-          kind: "ESCROW",
-          status: "PAID",
-          bookingId,
-          amountMinor: booking.amountMinor,
-          provider: "SANDBOX",
-          paidAt: new Date(),
-        },
-      });
-      return { mode: "sandbox" as const, credited: true };
-    }
-    const payment = await this.prisma.payment.create({
-      data: {
-        userId,
-        kind: "ESCROW",
-        status: "PENDING",
-        bookingId,
-        amountMinor: booking.amountMinor,
-        provider: "STRIPE",
-      },
-    });
-    const session = await this.stripe.checkout.sessions.create({
-      mode: "payment",
-      success_url: `${this.web()}/inbox?paid=1&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${this.web()}/inbox?canceled=1`,
-      client_reference_id: payment.id,
-      metadata: { paymentId: payment.id, kind: "ESCROW", bookingId },
-      line_items: [
-        {
-          quantity: 1,
-          price_data: {
-            currency: (booking.currency || "USD").toLowerCase(),
-            unit_amount: booking.amountMinor,
-            product_data: { name: "WTWS session escrow" },
-          },
-        },
-      ],
-    });
     await this.prisma.payment.update({
       where: { id: payment.id },
       data: { providerRef: session.id },
     });
+
     return { mode: "stripe" as const, url: session.url };
   }
 
@@ -163,19 +115,18 @@ export class PaymentsService {
     });
     if (!payment) throw new BadRequestException("Payment not found");
     if (expectedUserId && payment.userId !== expectedUserId) throw new BadRequestException("Payment mismatch");
+
     const claimed = await this.prisma.payment.updateMany({
       where: { id: payment.id, status: "PENDING" },
       data: { status: "PAID", providerRef: sessionId, paidAt: new Date() },
     });
     if (claimed.count === 0) return { ok: true, already: true };
+
     if (payment.kind === "COIN_PACK" && payment.coins) {
       await this.wallet.creditCoins(payment.userId, payment.coins, "PURCHASE", `Stripe pack ${payment.coins}`, payment.id);
+      track("coins_purchased", payment.userId, "STUDENT", { coins: payment.coins, mode: "stripe" });
     }
-    if (payment.kind === "ESCROW" && payment.bookingId) {
-      await this.bookings.paySandbox(payment.userId, payment.bookingId);
-      const booking = await this.prisma.booking.findUnique({ where: { id: payment.bookingId } });
-      track("escrow_paid", payment.userId, "STUDENT", { bookingId: payment.bookingId, amountMinor: payment.amountMinor, currency: booking?.currency });
-    }
+
     return { ok: true };
   }
 

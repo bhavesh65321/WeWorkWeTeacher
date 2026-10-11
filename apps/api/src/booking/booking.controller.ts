@@ -28,6 +28,12 @@ class ReviewDto {
   body?: string;
 }
 
+class CancelDto {
+  @IsOptional()
+  @IsString()
+  reason?: string;
+}
+
 @Controller("bookings")
 @UseGuards(JwtAuthGuard)
 export class BookingController {
@@ -48,19 +54,19 @@ export class BookingController {
     return this.bookings.create(user.sub, dto.conversationId, dto.startsAt, dto.durationMin);
   }
 
-  @Post(":id/pay")
-  pay(@CurrentUser() user: AuthUser, @Param("id") id: string) {
-    return this.bookings.paySandbox(user.sub, id);
+  @Post(":id/confirm")
+  confirm(@CurrentUser() user: AuthUser, @Param("id") id: string) {
+    return this.bookings.confirm(user.sub, id);
   }
 
-  @Post(":id/dispute")
-  dispute(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() body: { reason?: string }) {
-    return this.bookings.dispute(user.sub, id, body.reason || "Session did not happen");
+  @Post(":id/complete")
+  complete(@CurrentUser() user: AuthUser, @Param("id") id: string) {
+    return this.bookings.complete(user.sub, id);
   }
 
-  @Post(":id/release")
-  release(@CurrentUser() user: AuthUser, @Param("id") id: string) {
-    return this.bookings.release(user.sub, id);
+  @Post(":id/cancel")
+  cancel(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() dto: CancelDto) {
+    return this.bookings.cancel(user.sub, id, dto.reason);
   }
 
   @Post(":id/review")

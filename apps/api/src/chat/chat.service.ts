@@ -141,7 +141,7 @@ export class ChatService {
         tutor: true,
         job: true,
         messages: { orderBy: { createdAt: "asc" } },
-        bookings: { include: { escrow: true, review: true }, orderBy: { createdAt: "desc" } },
+        bookings: { include: { review: true }, orderBy: { createdAt: "desc" } },
         apply: true,
       },
     });
@@ -150,19 +150,16 @@ export class ChatService {
       await this.prisma.jobApply.update({ where: { id: t.apply.id }, data: { studentReadAt: new Date() } });
     }
 
-    // Compute contact unlock status
     const student = await this.prisma.user.findUnique({ where: { id: t.studentId } });
-    const contactUnlocked =
-      t.escrowFunded && student?.emailVerifiedAt && student?.phoneVerifiedAt;
-    const unlockBlockers: ("PAY" | "EMAIL" | "PHONE")[] = [];
-    if (!t.escrowFunded) unlockBlockers.push("PAY");
+    const contactUnlocked = t.contactUnlocked && student?.emailVerifiedAt && student?.phoneVerifiedAt;
+    const unlockBlockers: ("COINS" | "EMAIL" | "PHONE")[] = [];
+    if (!t.contactUnlocked) unlockBlockers.push("COINS");
     if (!student?.emailVerifiedAt) unlockBlockers.push("EMAIL");
     if (!student?.phoneVerifiedAt) unlockBlockers.push("PHONE");
 
-    const masked = !t.escrowFunded;
+    const masked = !t.contactUnlocked;
     return {
       ...this.toThread(t, userId),
-      escrowFunded: t.escrowFunded,
       contactUnlocked,
       unlockBlockers,
       bookings: t.bookings,
@@ -176,16 +173,31 @@ export class ChatService {
     };
   }
 
+  async unlockContact(userId: string, conversationId: string) {
+    const t = await this.prisma.conversation.findUnique({ where: { id: conversationId } });
+    if (!t || (t.studentId !== userId && t.tutorId !== userId)) throw new NotFoundException();
+    if (t.contactUnlocked) return { ok: true, already: true };
+
+    const UNLOCK_COST = 10;
+    await this.wallet.debitCoins(userId, UNLOCK_COST, "UNLOCK", "Unlock contact", conversationId);
+    await this.prisma.conversation.update({
+      where: { id: conversationId },
+      data: { contactUnlocked: true },
+    });
+    track("contact_unlocked", userId, "STUDENT", { conversationId, coinsSpent: UNLOCK_COST });
+    return { ok: true, coinsSpent: UNLOCK_COST };
+  }
+
   async send(userId: string, conversationId: string, body: string) {
     const t = await this.prisma.conversation.findUnique({
       where: { id: conversationId },
       include: { apply: true },
     });
     if (!t || (t.studentId !== userId && t.tutorId !== userId)) throw new NotFoundException();
-    if (!t.escrowFunded && containsContactLeak(body)) {
-      throw new BadRequestException("Phone, email, and off-platform links stay hidden until the session is paid");
+    if (!t.contactUnlocked && containsContactLeak(body)) {
+      throw new BadRequestException("Phone, email, and off-platform links stay hidden until contact is unlocked");
     }
-    const stored = t.escrowFunded ? body : maskContact(body);
+    const stored = t.contactUnlocked ? body : maskContact(body);
     const msg = await this.prisma.message.create({
       data: { conversationId, senderId: userId, body: stored },
     });
@@ -226,7 +238,7 @@ export class ChatService {
       id: string;
       studentId: string;
       tutorId: string;
-      escrowFunded: boolean;
+      contactUnlocked: boolean;
       job: { title: string } | null;
       student: { name: string; phone: string | null };
       tutor: { name: string; phone: string | null };
@@ -239,11 +251,11 @@ export class ChatService {
     return {
       id: t.id,
       otherName: otherUser.name,
-      otherPhone: t.escrowFunded ? otherUser.phone : null,
+      otherPhone: t.contactUnlocked ? otherUser.phone : null,
       isStudent: userId === t.studentId,
       jobTitle: t.job?.title ?? "Direct message",
-      escrowFunded: t.escrowFunded,
-      lastMessage: last ? (t.escrowFunded ? last.body : maskContact(last.body)) : "",
+      contactUnlocked: t.contactUnlocked,
+      lastMessage: last ? (t.contactUnlocked ? last.body : maskContact(last.body)) : "",
       lastAt: last?.createdAt.toISOString() ?? null,
     };
   }

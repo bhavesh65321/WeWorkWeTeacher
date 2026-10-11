@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -192,19 +192,19 @@ model JobApply {
 }
 
 model Conversation {
-  id            String    @id @default(cuid())
-  threadKey     String    @unique
-  jobId         String?
-  job           Job?      @relation(fields: [jobId], references: [id], onDelete: SetNull)
-  studentId     String
-  student       User      @relation("StudentThreads", fields: [studentId], references: [id], onDelete: Cascade)
-  tutorId       String
-  tutor         User      @relation("TutorThreads", fields: [tutorId], references: [id], onDelete: Cascade)
-  escrowFunded  Boolean   @default(false)
-  createdAt     DateTime  @default(now())
-  messages      Message[]
-  apply         JobApply?
-  bookings      Booking[]
+  id              String    @id @default(cuid())
+  threadKey       String    @unique
+  jobId           String?
+  job             Job?      @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  studentId       String
+  student         User      @relation("StudentThreads", fields: [studentId], references: [id], onDelete: Cascade)
+  tutorId         String
+  tutor           User      @relation("TutorThreads", fields: [tutorId], references: [id], onDelete: Cascade)
+  contactUnlocked Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  messages        Message[]
+  apply           JobApply?
+  bookings        Booking[]
 }
 
 model Message {
@@ -233,18 +233,7 @@ model Booking {
   disputedAt      DateTime?
   disputeReason   String?
   createdAt       DateTime     @default(now())
-  escrow          EscrowHold?
   review          Review?
-}
-
-model EscrowHold {
-  id         String   @id @default(cuid())
-  bookingId  String   @unique
-  booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  amountMinor Int
-  status     String   @default("HELD")
-  createdAt  DateTime @default(now())
-  releasedAt DateTime?
 }
 
 model Review {
@@ -279,9 +268,8 @@ model Payment {
   kind        String
   status      String    @default("PENDING")
   coins       Int?
-  bookingId   String?
   amountMinor Int
-  currency    String    @default("USD")
+  currency    String    @default("INR")
   provider    String
   providerRef String?   @unique
   createdAt   DateTime  @default(now())

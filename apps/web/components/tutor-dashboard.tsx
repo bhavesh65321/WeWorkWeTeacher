@@ -80,7 +80,7 @@ export function TutorDashboard({
           <ActionCard
             icon={Icons.star}
             title="Get reviews"
-            description="Students can review your teaching after they release escrow payment for completed sessions."
+            description="Students can review your teaching after completing sessions with you."
             href="/reviews"
             buttonText="✨ Request Student Review"
           />

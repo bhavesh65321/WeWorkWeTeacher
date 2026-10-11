@@ -45,21 +45,16 @@ export const PREMIUM_COST = 100;
 export const PREMIUM_DAYS = 30;
 export const EARLY_ACCESS_HOURS = 1;
 export const STUDENT_MESSAGE_COST = 50;
+export const CONTACT_UNLOCK_COST = 10;
 export const UNREAD_REFUND_MS = 14 * 24 * 60 * 60 * 1000;
 export const MAX_JOBS_PER_DAY = 5;
-export const PLATFORM_TAKE_BPS = 1200;
 
 export const COIN_PACKS = [
-  { coins: 50, amountMinor: 500, label: "Starter" },
-  { coins: 200, amountMinor: 1800, label: "Plus" },
-  { coins: 500, amountMinor: 4000, label: "Pro" },
+  { coins: 50, amountMinor: 5000, label: "Starter", currency: "INR" },
+  { coins: 200, amountMinor: 18000, label: "Plus", currency: "INR" },
+  { coins: 500, amountMinor: 40000, label: "Pro", currency: "INR" },
 ] as const;
 
-export function platformFee(amountMinor: number) {
-  return Math.round((amountMinor * PLATFORM_TAKE_BPS) / 10_000);
-}
-
-// Skill aliases for fuzzy matching
 const SKILL_ALIASES: Record<string, string[]> = {
   maths: ["mathematics", "math"],
   mathematics: ["maths", "math"],
@@ -96,7 +91,6 @@ export function isJobMatch(
   tutor: { skills?: string[]; subjects?: string[]; languages?: string[]; modes?: string[] },
   job: { subject?: string; languages?: string[]; modes?: string[] },
 ): JobMatchResult {
-  // Tutor must have skills/subjects
   const tutorSkills = new Set<string>();
   if (tutor.skills) {
     tutor.skills.forEach((s) => {
@@ -112,7 +106,6 @@ export function isJobMatch(
     return { match: false, score: 0 };
   }
 
-  // Job subject
   const jobSkills = new Set<string>();
   if (job.subject) {
     getSkillVariants(job.subject).forEach((v) => jobSkills.add(v));
@@ -121,13 +114,11 @@ export function isJobMatch(
     return { match: false, score: 0 };
   }
 
-  // Skill overlap (Jaccard similarity)
   const skillScore = jaccardSimilarity(tutorSkills, jobSkills);
   if (skillScore < 0.35) {
     return { match: false, score: skillScore };
   }
 
-  // Language intersection (if job specifies languages)
   if (job.languages && job.languages.length > 0) {
     const tutorLangs = new Set((tutor.languages || []).map((l) => l.toLowerCase()));
     const jobLangs = new Set(job.languages.map((l) => l.toLowerCase()));
@@ -137,7 +128,6 @@ export function isJobMatch(
     }
   }
 
-  // Mode intersection
   if (job.modes && job.modes.length > 0) {
     const tutorModes = new Set((tutor.modes || []).map((m) => m.toUpperCase()));
     const jobModes = new Set(job.modes.map((m) => m.toUpperCase()));

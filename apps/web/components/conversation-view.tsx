@@ -14,8 +14,6 @@ type Booking = {
   amountMinor: number;
   currency: string;
   status: string;
-  disputedAt?: string | null;
-  escrow: { status: string } | null;
   review: { id: string } | null;
 };
 
@@ -25,7 +23,8 @@ type Thread = {
   otherPhone: string | null;
   isStudent: boolean;
   jobTitle: string;
-  escrowFunded: boolean;
+  contactUnlocked: boolean;
+  unlockBlockers: string[];
   messages: Msg[];
   bookings: Booking[];
 };
@@ -41,6 +40,7 @@ export function ConversationView({ id }: { id: string }) {
   const [error, setError] = useState("");
   const [startsAt, setStartsAt] = useState("");
   const [rating, setRating] = useState(5);
+  const [unlocking, setUnlocking] = useState(false);
 
   async function load() {
     const data = await apiClient<Thread>(`/conversations/${id}`);
@@ -62,6 +62,19 @@ export function ConversationView({ id }: { id: string }) {
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Could not send");
+    }
+  }
+
+  async function unlockContact() {
+    setUnlocking(true);
+    setError("");
+    try {
+      await apiClient(`/conversations/${id}/unlock`, { method: "POST" });
+      await load();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Could not unlock");
+    } finally {
+      setUnlocking(false);
     }
   }
 
@@ -88,13 +101,21 @@ export function ConversationView({ id }: { id: string }) {
       <div className="flex min-w-0 flex-col">
         <h1 className="break-words text-xl font-bold sm:text-2xl">{thread.otherName}</h1>
         <p className="break-words text-sm text-[rgb(var(--muted-foreground))]">{thread.jobTitle}</p>
-        {!thread.escrowFunded ? (
-          <p className="mt-2 rounded-lg bg-[rgb(var(--muted))] px-3 py-2 text-sm">
-            Phone and WhatsApp stay hidden until the student pays. Keep chatting here.
-          </p>
+        {!thread.contactUnlocked ? (
+          <div className="mt-2 rounded-lg bg-[rgb(var(--muted))] px-3 py-2">
+            <p className="text-sm">Phone and WhatsApp stay hidden until you unlock contact.</p>
+            <Button
+              className="mt-2"
+              type="button"
+              onClick={unlockContact}
+              disabled={unlocking}
+            >
+              {unlocking ? "Unlocking…" : "Unlock contact (10 coins)"}
+            </Button>
+          </div>
         ) : (
           <div className="mt-3 rounded-2xl border border-[rgb(var(--border))] p-3 sm:p-4">
-            <p className="text-sm font-semibold text-[rgb(var(--wtws-teal))]">Paid — contact unlocked</p>
+            <p className="text-sm font-semibold text-[rgb(var(--wtws-teal))]">Contact unlocked</p>
             {thread.otherPhone ? (
               <>
                 <p className="mt-1 break-all text-base font-semibold tabular-nums sm:text-lg">{thread.otherPhone}</p>
@@ -161,7 +182,7 @@ export function ConversationView({ id }: { id: string }) {
       <aside className="min-w-0 space-y-4 md:sticky md:top-20 md:self-start">
         {thread.isStudent ? (
         <div className="rounded-2xl border border-[rgb(var(--border))] p-4">
-          <h2 className="font-semibold">Book a session</h2>
+          <h2 className="font-semibold">Schedule a session</h2>
           <form onSubmit={book} className="mt-3 space-y-2">
             <Input
               type="datetime-local"
@@ -177,7 +198,7 @@ export function ConversationView({ id }: { id: string }) {
         </div>
         ) : (
           <p className="rounded-2xl border border-[rgb(var(--border))] p-4 text-sm text-[rgb(var(--muted-foreground))]">
-            The student books and pays. You get paid when they release escrow.
+            The student schedules sessions. Payment is handled via coins.
           </p>
         )}
         {latest ? (
@@ -185,7 +206,6 @@ export function ConversationView({ id }: { id: string }) {
             <p className="font-semibold">{formatMoney(latest.amountMinor, latest.currency)}</p>
             <p className="mt-1 text-[rgb(var(--muted-foreground))]">
               {new Date(latest.startsAt).toLocaleString()} · {latest.status}
-              {latest.escrow ? ` · escrow ${latest.escrow.status}` : ""}
             </p>
             {thread.isStudent && latest.status === "REQUESTED" ? (
               <Button
@@ -194,63 +214,33 @@ export function ConversationView({ id }: { id: string }) {
                 onClick={async () => {
                   setError("");
                   try {
-                    const res = await apiClient<{ url?: string }>(`/payments/checkout/escrow`, {
-                      method: "POST",
-                      body: JSON.stringify({ bookingId: latest.id }),
-                    });
-                    if (res.url) window.location.href = res.url;
-                    else await load();
+                    await apiClient(`/bookings/${latest.id}/confirm`, { method: "POST" });
+                    await load();
                   } catch (err) {
-                    setError(err instanceof Error ? err.message : "Could not pay");
+                    setError(err instanceof Error ? err.message : "Could not confirm");
                   }
                 }}
               >
-                Pay into escrow
+                Confirm booking
               </Button>
             ) : null}
-            {thread.isStudent && latest.escrow?.status === "HELD" && latest.status !== "DISPUTED" ? (
-              <>
-                <Button
-                  className="mt-3 w-full"
-                  type="button"
-                  variant="secondary"
-                  onClick={async () => {
-                    setError("");
-                    try {
-                      await apiClient(`/bookings/${latest.id}/release`, { method: "POST" });
-                      await load();
-                    } catch (err) {
-                      setError(err instanceof Error ? err.message : "Could not release");
-                    }
-                  }}
-                >
-                  Release to tutor
-                </Button>
-                <Button
-                  className="mt-2 w-full"
-                  type="button"
-                  variant="outline"
-                  onClick={async () => {
-                    setError("");
-                    try {
-                      await apiClient(`/bookings/${latest.id}/dispute`, {
-                        method: "POST",
-                        body: JSON.stringify({ reason: "Session did not happen" }),
-                      });
-                      await load();
-                    } catch (err) {
-                      setError(err instanceof Error ? err.message : "Could not dispute");
-                    }
-                  }}
-                >
-                  Dispute / did not happen
-                </Button>
-              </>
-            ) : null}
-            {latest.status === "DISPUTED" ? (
-              <p className="mt-3 text-sm text-[rgb(var(--muted-foreground))]">
-                Disputed. Support can refund from Admin.
-              </p>
+            {latest.status === "CONFIRMED" ? (
+              <Button
+                className="mt-3 w-full"
+                type="button"
+                variant="secondary"
+                onClick={async () => {
+                  setError("");
+                  try {
+                    await apiClient(`/bookings/${latest.id}/complete`, { method: "POST" });
+                    await load();
+                  } catch (err) {
+                    setError(err instanceof Error ? err.message : "Could not complete");
+                  }
+                }}
+              >
+                Mark as completed
+              </Button>
             ) : null}
             {thread.isStudent && latest.status === "COMPLETED" && !latest.review ? (
               <form

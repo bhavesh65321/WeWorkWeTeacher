@@ -50,4 +50,9 @@ export class ChatController {
   send(@CurrentUser() user: AuthUser, @Param("id") id: string, @Body() dto: SendDto) {
     return this.chat.send(user.sub, id, dto.body);
   }
+
+  @Post("conversations/:id/unlock")
+  unlock(@CurrentUser() user: AuthUser, @Param("id") id: string) {
+    return this.chat.unlockContact(user.sub, id);
+  }
 }

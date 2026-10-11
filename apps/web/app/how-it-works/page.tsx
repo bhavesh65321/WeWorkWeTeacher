@@ -7,7 +7,7 @@ export default function HowItWorksPage() {
     <div className="mx-auto max-w-4xl">
       <h1 className="text-3xl font-bold">How WTWS works</h1>
       <p className="mt-2 text-[rgb(var(--muted-foreground))]">
-        Same marketplace loop as TeacherOn — search, post, coins, apply — then pay on WTWS. Built-in classroom is later; after pay you chat here or on WhatsApp.
+        Same marketplace loop as TeacherOn — search, post, coins, apply — then connect on WTWS. Built-in classroom is later; after unlocking contact you chat here or on WhatsApp.
       </p>
       <div className="mt-10 grid gap-8 md:grid-cols-2">
         <section className="rounded-2xl border border-[rgb(var(--border))] p-6">
@@ -15,8 +15,8 @@ export default function HowItWorksPage() {
           <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm">
             <li>Search tutors (All / Online / Home / Assignment) or post a requirement.</li>
             <li>Message a tutor with starter coins, or wait for tutors to apply to your post.</li>
-            <li>Chat in WTWS. Phone and WhatsApp unlock after you pay for a session.</li>
-            <li>Book, pay into escrow (12% platform fee on payout), then review. Dispute if the session never happened.</li>
+            <li>Chat in WTWS. Phone and WhatsApp unlock when you spend coins to unlock contact.</li>
+            <li>Schedule sessions, connect directly via WhatsApp/call, then leave a review.</li>
           </ol>
           <div className="mt-6 flex gap-3">
             <Link href="/tutors" className="font-semibold text-[rgb(var(--wtws-blue))]">
@@ -33,7 +33,7 @@ export default function HowItWorksPage() {
             <li>Complete your teaching profile (skills, rate, city, how you teach).</li>
             <li>Open Tutor jobs. Apply with coins — or wait for jobs matching your skills to go free.</li>
             <li>Premium gets 1-hour early access and higher search ranking.</li>
-            <li>Chat, get booked, teach (chat / WhatsApp after pay), and receive payout when the student releases escrow.</li>
+            <li>Chat, get booked, teach (chat / WhatsApp after contact unlock), and receive payment directly.</li>
           </ol>
           <div className="mt-6 flex gap-3">
             <Link href="/jobs" className="font-semibold text-[rgb(var(--wtws-blue))]">
@@ -45,6 +45,18 @@ export default function HowItWorksPage() {
           </div>
         </section>
       </div>
+      <section className="mt-10 rounded-2xl border border-[rgb(var(--border))] p-6">
+        <h2 className="text-xl font-bold">Payment methods</h2>
+        <p className="mt-2 text-sm text-[rgb(var(--muted-foreground))]">
+          Buy coin packs using Cards or UPI via Stripe. Coins are used to:
+        </p>
+        <ul className="mt-4 list-disc space-y-2 pl-5 text-sm">
+          <li><strong>Apply to jobs</strong> — Tutors spend coins to apply to student job posts</li>
+          <li><strong>Message tutors</strong> — Students spend coins to start conversations</li>
+          <li><strong>Unlock contacts</strong> — Spend coins to reveal phone/WhatsApp</li>
+          <li><strong>Premium upgrade</strong> — Get early access to new jobs</li>
+        </ul>
+      </section>
     </div>
   );
 }

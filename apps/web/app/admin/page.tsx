@@ -8,8 +8,8 @@ type Overview = {
   users: number;
   jobs: number;
   flags: { id: string; targetType: string; targetId: string; reason: string; status: string }[];
-  holds: { id: string; status: string; amountMinor: number; bookingId?: string; booking?: { id: string; status: string } }[];
   tickets: { id: string; name: string; email: string; topic: string; body: string; status: string }[];
+  payments: { id: string; userId: string; kind: string; status: string; coins: number | null; amountMinor: number; currency: string; paidAt: string | null }[];
 };
 
 export default function AdminPage() {
@@ -30,7 +30,7 @@ export default function AdminPage() {
     <div>
       <h1 className="text-3xl font-bold">Admin</h1>
       <p className="mt-2 text-[rgb(var(--muted-foreground))]">
-        {data.users} users · {data.jobs} jobs · {data.holds.length} recent escrow holds
+        {data.users} users · {data.jobs} jobs · {data.payments.length} recent payments
       </p>
       <Button
         className="mt-4"
@@ -105,33 +105,22 @@ export default function AdminPage() {
       {(data.tickets ?? []).length === 0 ? (
         <p className="mt-3 text-sm text-[rgb(var(--muted-foreground))]">No open tickets.</p>
       ) : null}
-      <h2 className="mt-8 font-semibold">Escrow holds</h2>
+      <h2 className="mt-8 font-semibold">Recent payments</h2>
       <ul className="mt-3 space-y-3">
-        {data.holds.map((h) => (
-          <li key={h.id} className="rounded-xl border border-[rgb(var(--border))] p-4 text-sm">
+        {data.payments.map((p) => (
+          <li key={p.id} className="rounded-xl border border-[rgb(var(--border))] p-4 text-sm">
             <p>
-              {h.status} · ${(h.amountMinor / 100).toFixed(2)} · booking {h.booking?.id ?? h.bookingId ?? h.id}
-              {h.booking?.status ? ` · ${h.booking.status}` : ""}
+              {p.kind} · {p.status} · ₹{(p.amountMinor / 100).toFixed(2)} · {p.coins ?? 0} coins
             </p>
-            {h.status === "HELD" && (h.booking?.id || h.bookingId) ? (
-              <Button
-                className="mt-2"
-                type="button"
-                variant="outline"
-                onClick={async () => {
-                  await apiClient(`/admin/bookings/${h.booking?.id ?? h.bookingId}/refund`, {
-                    method: "POST",
-                    body: JSON.stringify({ note: "Admin refund" }),
-                  });
-                  await load();
-                }}
-              >
-                Refund student
-              </Button>
-            ) : null}
+            <p className="text-[rgb(var(--muted-foreground))]">
+              User: {p.userId} · {p.paidAt ? new Date(p.paidAt).toLocaleString() : "Pending"}
+            </p>
           </li>
         ))}
       </ul>
+      {data.payments.length === 0 ? (
+        <p className="mt-3 text-sm text-[rgb(var(--muted-foreground))]">No recent payments.</p>
+      ) : null}
     </div>
   );
 }
