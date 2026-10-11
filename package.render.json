@@ -1,0 +1,7 @@
+{
+  "name": "wtws-api-deploy",
+  "scripts": {
+    "build": "cd apps/api && npx prisma generate && npm run build",
+    "start": "cd apps/api && node dist/main.js"
+  }
+}
