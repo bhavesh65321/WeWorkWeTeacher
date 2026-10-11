@@ -1,0 +1,5 @@
+{
+  "buildCommand": "pnpm build --filter=@wtws/api",
+  "installCommand": "pnpm install",
+  "framework": null
+}
