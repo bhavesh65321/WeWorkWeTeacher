@@ -1,0 +1,37 @@
+apps/web/components/mobile-bottom-nav.tsx
+  s_11106e1ec74c31::t_cf71b4a8128ca0 1-85
+apps/web/app/wallet/page.tsx
+  s_11106e1ec74c31::t_8d29ee3b7fec8b 58,65,87,89-91,93-94,97,107,115,132-133,135,140,143,153,155,159-162,164,173
+apps/web/app/globals.css
+  s_11106e1ec74c31::t_0d343c6b8696e8 10,17-84
+apps/web/components/ui/page-header.tsx
+  s_11106e1ec74c31::t_881fdabc716106 22-23,25,29-30,32-36,61-62,65-66,68,75,95-96,100,102
+apps/web/components/ui/cards.tsx
+  s_11106e1ec74c31::t_d31e4ffdbbeb34 24,26,30,33-34,37,62-63,66-68,70,75,100-102,104,109,122,127,150-151,154-155,159
+apps/web/app/jobs/page.tsx
+  s_11106e1ec74c31::t_f0da7bfd6a2cca 26-27,29,32-33,39,45-46,60-63,70,76-78,82-83,88
+apps/web/app/register/page.tsx
+  s_11106e1ec74c31::t_5c455c6d0ac2a7 12,14,17-18,22
+apps/web/app/layout.tsx
+  s_11106e1ec74c31::t_4c64c6c1129622 5,26-28,37-43
+apps/web/app/login/page.tsx
+  s_11106e1ec74c31::t_ed752708a2bcd7 12,14,17-18,22
+apps/web/components/header.tsx
+  s_11106e1ec74c31::t_9420143e0e7a6b 35-37,43,104,110,121,124,126,130-131,133,136,148
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "8343117740f0d2fd2fbf7147608ceda2a1f3de4b",
+  "prompts": {},
+  "sessions": {
+    "s_11106e1ec74c31": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "30dbd06b-d401-40e9-a3c1-6dee25cb5a57",
+        "model": "us.anthropic.claude-opus-4-5-20251101-v1:0"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
