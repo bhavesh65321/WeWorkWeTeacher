@@ -32,22 +32,18 @@ export function Header({ me }: { me: Me | null }) {
   const app = Boolean(me) && isAppPath(path);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-8">
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-lg">
+      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-4 sm:h-16 sm:gap-4 sm:px-6 lg:px-8">
+        <div className="flex items-center gap-4 sm:gap-8">
           <BrandMark />
           <nav className="hidden items-center gap-1 lg:flex">
             {app && me ? <AppNav me={me} /> : <PublicNav />}
           </nav>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {me ? <LoggedInTools me={me} app={app} /> : <GuestTools />}
         </div>
       </div>
-      {/* Mobile nav */}
-      <nav className="flex gap-1 overflow-x-auto border-t border-slate-100 px-4 py-2 lg:hidden sm:px-6">
-        {app && me ? <AppMobileNav me={me} /> : <PublicMobileNav me={me} />}
-      </nav>
     </header>
   );
 }
@@ -105,13 +101,13 @@ function GuestTools() {
     <>
       <Link 
         href="/login" 
-        className="rounded-lg px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+        className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 hover:text-slate-900 sm:px-4"
       >
         Log in
       </Link>
       <Link
         href="/register"
-        className="rounded-lg bg-[rgb(var(--wtws-blue))] px-4 py-2 text-sm font-semibold text-white hover:bg-[rgb(var(--wtws-blue-dark))]"
+        className="rounded-lg bg-[rgb(var(--wtws-blue))] px-3 py-2 text-sm font-semibold text-white hover:bg-[rgb(var(--wtws-blue-dark))] sm:px-4"
       >
         Sign up
       </Link>
@@ -122,23 +118,22 @@ function GuestTools() {
 function LoggedInTools({ me, app }: { me: Me; app: boolean }) {
   return (
     <>
-      {/* Coins badge */}
+      {/* Coins badge - compact on mobile */}
       <Link
         href="/wallet"
-        className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 px-3 py-1.5 text-sm font-semibold text-amber-700 hover:from-amber-100 hover:to-orange-100"
+        className="flex items-center gap-1 rounded-full bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200 px-2 py-1 text-xs font-semibold text-amber-700 hover:from-amber-100 hover:to-orange-100 sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-sm"
       >
-        <span className="text-base">🪙</span>
+        <span className="text-sm sm:text-base">🪙</span>
         <span>{me.coinBalance ?? 0}</span>
-        <span className="hidden sm:inline text-amber-600">coins</span>
       </Link>
 
-      {/* Role switch */}
-      {app && <RoleSwitch me={me} />}
+      {/* Role switch - hidden on mobile */}
+      {app && <div className="hidden sm:block"><RoleSwitch me={me} /></div>}
 
-      {/* Notifications */}
+      {/* Notifications - always visible */}
       <Link 
         href="/notifications" 
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-700 sm:h-10 sm:w-10"
       >
         <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -150,7 +145,7 @@ function LoggedInTools({ me, app }: { me: Me; app: boolean }) {
         )}
       </Link>
 
-      {/* Admin link */}
+      {/* Admin link - hidden on mobile */}
       {me.isAdmin && (
         <Link 
           href="/admin" 
@@ -162,61 +157,6 @@ function LoggedInTools({ me, app }: { me: Me; app: boolean }) {
 
       {/* Account menu */}
       <AccountMenu me={me} />
-    </>
-  );
-}
-
-function MobileNavLink({ href, children }: { href: string; children: React.ReactNode }) {
-  const path = usePathname() || "/";
-  const isActive = path === href || (href !== "/" && path.startsWith(href));
-  
-  return (
-    <Link
-      href={href}
-      className={`shrink-0 rounded-full px-3 py-1.5 text-sm font-medium transition ${
-        isActive 
-          ? "bg-[rgb(var(--wtws-blue))] text-white" 
-          : "text-slate-600 hover:bg-slate-100"
-      }`}
-    >
-      {children}
-    </Link>
-  );
-}
-
-function PublicMobileNav({ me }: { me: Me | null }) {
-  return (
-    <>
-      <MobileNavLink href="/tutors">Tutors</MobileNavLink>
-      <MobileNavLink href="/jobs">Jobs</MobileNavLink>
-      <MobileNavLink href="/jobs/new">Post</MobileNavLink>
-      {me ? (
-        <>
-          <MobileNavLink href="/dashboard">Dashboard</MobileNavLink>
-          <MobileNavLink href="/settings">Settings</MobileNavLink>
-        </>
-      ) : (
-        <>
-          <MobileNavLink href="/login">Log in</MobileNavLink>
-          <MobileNavLink href="/register">Sign up</MobileNavLink>
-        </>
-      )}
-    </>
-  );
-}
-
-function AppMobileNav({ me }: { me: Me }) {
-  return (
-    <>
-      <MobileNavLink href="/dashboard">Dashboard</MobileNavLink>
-      <MobileNavLink href="/jobs">Jobs</MobileNavLink>
-      <MobileNavLink href="/tutors">Tutors</MobileNavLink>
-      <MobileNavLink href="/inbox">Messages</MobileNavLink>
-      <MobileNavLink href="/wallet">Wallet</MobileNavLink>
-      {me.roles.includes("TUTOR") && me.activeRole === "TUTOR" && (
-        <MobileNavLink href="/tutors/edit">Profile</MobileNavLink>
-      )}
-      <MobileNavLink href="/settings">Settings</MobileNavLink>
     </>
   );
 }

@@ -21,20 +21,20 @@ const buttonVariants = {
 
 export function ActionCard({ icon, title, description, href, buttonText, buttonVariant = "default", badge }: ActionCardProps) {
   return (
-    <div className="relative flex flex-col rounded-2xl border border-slate-200 bg-white p-5">
+    <div className="relative flex flex-col rounded-xl border border-slate-200 bg-white p-4 sm:rounded-2xl sm:p-5">
       {badge && (
-        <span className="absolute right-4 top-4 rounded-md bg-blue-100 px-2 py-0.5 text-[10px] font-bold uppercase text-blue-700">
+        <span className="absolute right-3 top-3 rounded-md bg-blue-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-blue-700 sm:right-4 sm:top-4 sm:px-2 sm:text-[10px]">
           {badge}
         </span>
       )}
-      <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+      <div className="mb-2 flex h-9 w-9 items-center justify-center rounded-lg bg-slate-100 text-slate-600 sm:mb-3 sm:h-10 sm:w-10 sm:rounded-xl">
         {icon}
       </div>
-      <h3 className="font-semibold text-slate-900">{title}</h3>
-      <p className="mt-1 flex-1 text-sm text-slate-500">{description}</p>
+      <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{title}</h3>
+      <p className="mt-0.5 flex-1 text-xs text-slate-500 sm:mt-1 sm:text-sm">{description}</p>
       <Link
         href={href}
-        className={`mt-4 block rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition ${buttonVariants[buttonVariant]}`}
+        className={`mt-3 block rounded-lg px-3 py-2 text-center text-xs font-semibold transition sm:mt-4 sm:rounded-xl sm:px-4 sm:py-2.5 sm:text-sm ${buttonVariants[buttonVariant]}`}
       >
         {buttonText}
       </Link>
@@ -59,20 +59,20 @@ const infoBadgeColors = {
 
 export function InfoCard({ icon, title, description, badge, badgeColor = "emerald", children }: InfoCardProps) {
   return (
-    <div className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-5">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+    <div className="flex gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:gap-4 sm:rounded-2xl sm:p-5">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-600 sm:h-12 sm:w-12 sm:rounded-xl">
         {icon}
       </div>
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-slate-900">{title}</h3>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+          <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{title}</h3>
           {badge && (
-            <span className={`rounded-full px-2 py-0.5 text-xs font-semibold ${infoBadgeColors[badgeColor]}`}>
+            <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold sm:px-2 sm:text-xs ${infoBadgeColors[badgeColor]}`}>
               {badge}
             </span>
           )}
         </div>
-        <p className="mt-0.5 text-sm text-slate-500">{description}</p>
+        <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">{description}</p>
         {children}
       </div>
     </div>
@@ -97,16 +97,16 @@ const sectionBadgeColors = {
 export function Section({ title, badge, badgeColor = "slate", rightText, children }: SectionProps) {
   return (
     <section>
-      <div className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h2 className="text-lg font-bold text-slate-900">{title}</h2>
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2 sm:mb-4">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <h2 className="text-base font-bold text-slate-900 sm:text-lg">{title}</h2>
           {badge && (
-            <span className={`rounded-full px-3 py-1 text-xs font-semibold ${sectionBadgeColors[badgeColor]}`}>
+            <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold sm:px-3 sm:py-1 sm:text-xs ${sectionBadgeColors[badgeColor]}`}>
               {badge}
             </span>
           )}
         </div>
-        {rightText && <span className="text-sm text-slate-500">{rightText}</span>}
+        {rightText && <span className="text-xs text-slate-500 sm:text-sm">{rightText}</span>}
       </div>
       {children}
     </section>
@@ -119,12 +119,12 @@ interface FilterButtonsProps {
 
 export function FilterButtons({ filters }: FilterButtonsProps) {
   return (
-    <div className="flex flex-wrap gap-2">
+    <div className="flex flex-wrap gap-1.5 sm:gap-2">
       {filters.map((filter) => (
         <Link
           key={filter.href}
           href={filter.href}
-          className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${
+          className={`rounded-full px-3 py-1 text-xs font-medium transition sm:px-4 sm:py-1.5 sm:text-sm ${
             filter.active
               ? "border border-[rgb(var(--wtws-blue))] bg-blue-50 text-[rgb(var(--wtws-blue))]"
               : "border border-slate-200 text-slate-700 hover:bg-slate-50"
@@ -147,16 +147,16 @@ interface EmptyStateProps {
 
 export function EmptyState({ icon, title, description, href, buttonText }: EmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+    <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center sm:rounded-2xl sm:px-6 sm:py-12">
+      <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400 sm:mb-4 sm:h-14 sm:w-14">
         {icon}
       </div>
-      <h3 className="font-semibold text-slate-900">{title}</h3>
-      <p className="mt-1 max-w-sm text-sm text-slate-500">{description}</p>
+      <h3 className="text-sm font-semibold text-slate-900 sm:text-base">{title}</h3>
+      <p className="mt-1 max-w-sm text-xs text-slate-500 sm:text-sm">{description}</p>
       {href && buttonText && (
         <Link
           href={href}
-          className="mt-4 rounded-xl bg-[rgb(var(--wtws-blue))] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[rgb(var(--wtws-blue-dark))]"
+          className="mt-3 rounded-lg bg-[rgb(var(--wtws-blue))] px-4 py-2 text-xs font-semibold text-white hover:bg-[rgb(var(--wtws-blue-dark))] sm:mt-4 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-sm"
         >
           {buttonText}
         </Link>

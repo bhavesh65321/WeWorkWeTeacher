@@ -23,27 +23,27 @@ export default async function JobsPage({
   const jobs = await listJobs({ mode, q, city, matched, level }).catch(() => []);
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+    <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+      <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <span className="inline-block rounded-lg bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+          <span className="inline-block rounded-lg bg-blue-100 px-2.5 py-0.5 text-[11px] font-semibold text-blue-700 sm:px-3 sm:py-1 sm:text-xs">
             Tutor Jobs
           </span>
-          <h1 className="mt-3 text-3xl font-bold text-slate-900">Browse tutor jobs</h1>
-          <p className="mt-2 text-slate-600">
+          <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:mt-3 sm:text-3xl">Browse tutor jobs</h1>
+          <p className="mt-1 text-sm text-slate-600 sm:mt-2 sm:text-base">
             Apply with coins. Price drops to free if few tutors respond.
           </p>
         </div>
         <Link
           href="/jobs/new"
-          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[rgb(var(--wtws-blue))] px-6 text-sm font-semibold text-white hover:bg-[rgb(var(--wtws-blue-dark))]"
+          className="inline-flex min-h-10 items-center justify-center rounded-lg bg-[rgb(var(--wtws-blue))] px-4 text-sm font-semibold text-white hover:bg-[rgb(var(--wtws-blue-dark))] sm:min-h-11 sm:rounded-xl sm:px-6"
         >
           + Post a job
         </Link>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-6">
-        <div className="space-y-4">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 sm:rounded-2xl sm:p-6">
+        <div className="space-y-3 sm:space-y-4">
           <SearchBar basePath="/jobs" />
           <Suspense>
             <SearchTabs basePath="/jobs" withLevel />
@@ -57,35 +57,35 @@ export default async function JobsPage({
       </div>
 
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <h2 className="text-lg font-bold text-slate-900">Available Jobs</h2>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2 sm:mb-4">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <h2 className="text-base font-bold text-slate-900 sm:text-lg">Available Jobs</h2>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-600 sm:px-3 sm:py-1 sm:text-xs">
               {jobs.length} found
             </span>
           </div>
         </div>
 
         {jobs.length > 0 ? (
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {jobs.map((j) => (
               <JobCardView key={j.id} job={j} />
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-              <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 px-4 py-8 text-center sm:rounded-2xl sm:px-6 sm:py-12">
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400 sm:mb-4 sm:h-14 sm:w-14">
+              <svg className="h-5 w-5 sm:h-6 sm:w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
-            <h3 className="font-semibold text-slate-900">No exact matches</h3>
-            <p className="mt-1 max-w-sm text-sm text-slate-500">
+            <h3 className="text-sm font-semibold text-slate-900 sm:text-base">No exact matches</h3>
+            <p className="mt-1 max-w-sm text-xs text-slate-500 sm:text-sm">
               Try a broader keyword or city, or post your own requirement.
             </p>
             <Link
               href="/jobs/new"
-              className="mt-4 rounded-xl bg-[rgb(var(--wtws-blue))] px-6 py-2.5 text-sm font-semibold text-white hover:bg-[rgb(var(--wtws-blue-dark))]"
+              className="mt-3 rounded-lg bg-[rgb(var(--wtws-blue))] px-4 py-2 text-xs font-semibold text-white hover:bg-[rgb(var(--wtws-blue-dark))] sm:mt-4 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-sm"
             >
               Post a Request
             </Link>

@@ -9,17 +9,17 @@ export default async function LoginPage() {
   if (me) redirect(me.emailVerified === false ? "/verify" : "/dashboard");
   
   return (
-    <div className="mx-auto max-w-md space-y-8">
+    <div className="mx-auto max-w-md space-y-6 sm:space-y-8">
       <div className="text-center">
-        <span className="inline-block rounded-lg bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-700">
+        <span className="inline-block rounded-lg bg-blue-100 px-2.5 py-0.5 text-[11px] font-semibold text-blue-700 sm:px-3 sm:py-1 sm:text-xs">
           Welcome Back
         </span>
-        <h1 className="mt-3 text-3xl font-bold text-slate-900">Log in</h1>
-        <p className="mt-2 text-slate-600">
+        <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:mt-3 sm:text-3xl">Log in</h1>
+        <p className="mt-1.5 text-sm text-slate-600 sm:mt-2 sm:text-base">
           Sign in to your account to continue
         </p>
       </div>
-      <div className="rounded-2xl border border-slate-200 bg-white p-6">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 sm:rounded-2xl sm:p-6">
         <LoginForm />
       </div>
     </div>

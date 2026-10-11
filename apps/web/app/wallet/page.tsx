@@ -55,14 +55,14 @@ export default function WalletPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       <PageHeader
         badge="Wallet"
         badgeColor="emerald"
         title="Wallet"
         subtitle={
           <>
-            Coins never expire. {live ? "Card payments via Stripe." : "Sandbox mode — add STRIPE_SECRET_KEY for live cards."}
+            Coins never expire. {live ? "Card payments via Stripe." : "Sandbox mode — instant coins."}
           </>
         }
       >
@@ -84,17 +84,17 @@ export default function WalletPage() {
       </PageHeader>
 
       <Section title="Buy Coins" badge="Top up" badgeColor="blue">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           {packs.map((pack) => (
-            <div key={pack.coins} className="rounded-2xl border border-slate-200 bg-white p-5 text-center">
-              <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
-                <span className="text-2xl">🪙</span>
+            <div key={pack.coins} className="rounded-xl border border-slate-200 bg-white p-3 text-center sm:rounded-2xl sm:p-5">
+              <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 sm:mb-3 sm:h-12 sm:w-12">
+                <span className="text-xl sm:text-2xl">🪙</span>
               </div>
-              <p className="text-2xl font-bold text-slate-900">{pack.coins}</p>
-              <p className="text-sm text-slate-500">{pack.label}</p>
+              <p className="text-xl font-bold text-slate-900 sm:text-2xl">{pack.coins}</p>
+              <p className="text-xs text-slate-500 sm:text-sm">{pack.label}</p>
               <Button
                 type="button"
-                className="mt-4 w-full"
+                className="mt-3 w-full text-xs sm:mt-4 sm:text-sm"
                 onClick={async () => {
                   const res = await apiClient<{ mode: string; url?: string }>(`/payments/checkout/coins`, {
                     method: "POST",
@@ -104,7 +104,7 @@ export default function WalletPage() {
                   else await load();
                 }}
               >
-                ${(pack.amountMinor / 100).toFixed(0)}
+                ₹{(pack.amountMinor / 100).toFixed(0)}
               </Button>
             </div>
           ))}
@@ -112,7 +112,7 @@ export default function WalletPage() {
       </Section>
 
       <Section title="Premium" badge={wallet.isPremium ? "Active" : "Upgrade"} badgeColor={wallet.isPremium ? "emerald" : "orange"}>
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-3 sm:gap-4 lg:grid-cols-2">
           <ActionCard
             icon={Icons.bolt}
             title="Premium Access"
@@ -129,18 +129,18 @@ export default function WalletPage() {
             badgeColor="emerald"
           >
             {wallet.referralCode && (
-              <div className="mt-3">
-                <p className="text-[10px] font-medium uppercase text-slate-400">Your referral code</p>
+              <div className="mt-2 sm:mt-3">
+                <p className="text-[9px] font-medium uppercase text-slate-400 sm:text-[10px]">Your referral code</p>
                 <div className="mt-1 flex items-center gap-2">
-                  <code className="rounded bg-slate-100 px-2 py-1 text-sm font-mono text-slate-700">
+                  <code className="rounded bg-slate-100 px-2 py-1 text-xs font-mono text-slate-700 sm:text-sm">
                     {wallet.referralCode}
                   </code>
                   <button
                     onClick={() => navigator.clipboard.writeText(wallet.referralCode || "")}
-                    className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                    className="flex items-center gap-1 rounded-lg border border-slate-200 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-50 sm:px-3 sm:py-1.5 sm:text-sm"
                   >
                     {Icons.copy}
-                    Copy
+                    <span className="hidden sm:inline">Copy</span>
                   </button>
                 </div>
               </div>
@@ -150,18 +150,18 @@ export default function WalletPage() {
       </Section>
 
       <Section title="Transaction History" badge={`${wallet.entries.length} entries`} badgeColor="slate">
-        <div className="rounded-2xl border border-slate-200 bg-white">
+        <div className="rounded-xl border border-slate-200 bg-white sm:rounded-2xl">
           {wallet.entries.length === 0 ? (
-            <div className="p-8 text-center text-slate-500">No transactions yet</div>
+            <div className="p-6 text-center text-sm text-slate-500 sm:p-8">No transactions yet</div>
           ) : (
             <ul className="divide-y divide-slate-100">
               {wallet.entries.map((e) => (
-                <li key={e.id} className="flex items-center justify-between px-5 py-4">
-                  <div>
-                    <p className="font-medium text-slate-900">{e.type}</p>
-                    {e.note && <p className="text-sm text-slate-500">{e.note}</p>}
+                <li key={e.id} className="flex items-center justify-between px-4 py-3 sm:px-5 sm:py-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-slate-900 sm:text-base">{e.type}</p>
+                    {e.note && <p className="truncate text-xs text-slate-500 sm:text-sm">{e.note}</p>}
                   </div>
-                  <span className={`font-semibold ${e.amount > 0 ? "text-emerald-600" : "text-slate-900"}`}>
+                  <span className={`ml-3 shrink-0 text-sm font-semibold sm:text-base ${e.amount > 0 ? "text-emerald-600" : "text-slate-900"}`}>
                     {e.amount > 0 ? "+" : ""}
                     {e.amount} {e.unit === "COIN" ? "coins" : "¢"}
                   </span>
@@ -170,7 +170,7 @@ export default function WalletPage() {
             </ul>
           )}
         </div>
-        <p className="mt-4 text-center text-sm">
+        <p className="mt-3 text-center text-xs sm:mt-4 sm:text-sm">
           <Link href="/refunds" className="font-semibold text-[rgb(var(--wtws-blue))] hover:underline">
             View refund policy →
           </Link>

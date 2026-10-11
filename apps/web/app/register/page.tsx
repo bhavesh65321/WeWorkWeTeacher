@@ -9,17 +9,17 @@ export default async function RegisterPage() {
   if (me) redirect(me.emailVerified === false ? "/verify" : "/dashboard");
   
   return (
-    <div className="mx-auto max-w-md space-y-8">
+    <div className="mx-auto max-w-md space-y-6 sm:space-y-8">
       <div className="text-center">
-        <span className="inline-block rounded-lg bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+        <span className="inline-block rounded-lg bg-emerald-100 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-700 sm:px-3 sm:py-1 sm:text-xs">
           Get Started
         </span>
-        <h1 className="mt-3 text-3xl font-bold text-slate-900">Create account</h1>
-        <p className="mt-2 text-slate-600">
+        <h1 className="mt-2 text-2xl font-bold text-slate-900 sm:mt-3 sm:text-3xl">Create account</h1>
+        <p className="mt-1.5 text-sm text-slate-600 sm:mt-2 sm:text-base">
           Join thousands of students and tutors
         </p>
       </div>
-      <div className="rounded-2xl border border-slate-200 bg-white p-6">
+      <div className="rounded-xl border border-slate-200 bg-white p-4 sm:rounded-2xl sm:p-6">
         <RegisterForm />
       </div>
     </div>
