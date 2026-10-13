@@ -1,0 +1,27 @@
+packages/shared/src/constants.ts
+  s_11106e1ec74c31::t_38268abb357009 173-236
+apps/web/components/ui/searchable-select.tsx
+  s_11106e1ec74c31::t_fc3a591b4d97f5 1-250
+apps/web/components/job-owner-panel.tsx
+  s_11106e1ec74c31::t_fe47b0bc69fcdb 9,34-51,55,57-60,67-88,91-95,97-113,115-146
+apps/web/components/job-requirement-form.tsx
+  s_11106e1ec74c31::t_a382800114ca4d 3,20-24,27,31,33,48-51,56,69-70,95-140,155,157,170-171,190-191,194-196,198,200-208,211,214-217,233-243,245-249,259-265,267,277,286-328,330-333,335,346-368,371-373,375-379,381,387-410,412-423,425,438-441,453,464-492,501,512,515,517-523,535-540,544-546
+apps/web/app/jobs/[id]/page.tsx
+  s_11106e1ec74c31::t_8a841423f7081f 2,10,17,31-32,47-48,50-141,143-203,207-226,228-230,243-250
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "16e83c19a1dcfa38f5c753cd377af48bd74739ac",
+  "prompts": {},
+  "sessions": {
+    "s_11106e1ec74c31": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "30dbd06b-d401-40e9-a3c1-6dee25cb5a57",
+        "model": "us.anthropic.claude-opus-4-5-20251101-v1:0"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
