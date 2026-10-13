@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Input, Select, Textarea } from "@wtws/ui";
 import {
@@ -17,13 +17,20 @@ import {
   CURRENCIES,
   GENDER_PREFS,
   GENDER_PREF_LABELS,
+  SKILL_SUGGESTIONS,
+  LANGUAGE_OPTIONS,
+  COUNTRY_OPTIONS,
+  EMPLOYMENT_TYPES,
+  EMPLOYMENT_TYPE_LABELS,
   type JobCard,
   type TeachingMode,
+  type EmploymentType,
 } from "@wtws/shared";
 import { apiClient } from "@/lib/client";
 import type { Me } from "@/lib/api";
+import { SearchableSelect, MultiSelect } from "./ui/searchable-select";
 
-const STEPS = ["Need", "Where", "Budget"];
+const STEPS = ["Requirement", "Location & Preferences", "Budget & Schedule"];
 
 function buildTitle(form: { title: string; subject: string; modes: TeachingMode[]; city: string }) {
   if (form.title.trim().length >= 8) return form.title.trim();
@@ -38,11 +45,15 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [phone, setPhone] = useState("");
+  const [detectingLocation, setDetectingLocation] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [attachments, setAttachments] = useState<File[]>([]);
+
   const [form, setForm] = useState({
     type: (job?.type ?? "TUTORING") as "TUTORING" | "ASSIGNMENT",
     title: job?.title ?? "",
     description: job?.description ?? "",
-    subject: job?.subject ?? prefillSubject ?? "",
+    subjects: job?.subject ? [job.subject] : prefillSubject ? [prefillSubject] : [] as string[],
     level: job?.level ?? "High school",
     modes: (job?.modes ?? ["ONLINE"]) as TeachingMode[],
     visibility: (job?.visibility ?? "PUBLIC") as "PUBLIC" | "PRIVATE",
@@ -55,6 +66,8 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
     budgetType: job?.budgetType ?? "HOURLY",
     genderPref: job?.genderPref ?? "ANY",
     currency: job?.currency ?? "INR",
+    languages: [] as string[],
+    employmentType: "FLEXIBLE" as EmploymentType,
   });
 
   useEffect(() => {
@@ -79,6 +92,52 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
     }));
   }
 
+  async function detectLocation() {
+    setDetectingLocation(true);
+    try {
+      if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            try {
+              const res = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
+              );
+              const data = await res.json();
+              const city = data.address?.city || data.address?.town || data.address?.village || "";
+              const country = data.address?.country || "";
+              setForm((f) => ({ ...f, city, country }));
+            } catch {
+              setError("Could not detect location. Please enter manually.");
+            }
+            setDetectingLocation(false);
+          },
+          () => {
+            setError("Location access denied. Please enter manually.");
+            setDetectingLocation(false);
+          }
+        );
+      } else {
+        setError("Geolocation not supported. Please enter manually.");
+        setDetectingLocation(false);
+      }
+    } catch {
+      setDetectingLocation(false);
+    }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    const validFiles = files.filter((f) => f.size <= 5 * 1024 * 1024);
+    if (validFiles.length < files.length) {
+      setError("Some files were too large (max 5MB each)");
+    }
+    setAttachments((prev) => [...prev, ...validFiles].slice(0, 3));
+  }
+
+  function removeAttachment(index: number) {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
     if (step < 2) {
@@ -93,9 +152,9 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
       }
       const body = {
         type: form.type,
-        title: buildTitle(form),
+        title: buildTitle({ ...form, subject: form.subjects[0] || "" }),
         description: form.description,
-        subject: form.subject,
+        subject: form.subjects[0] || "",
         level: form.level,
         modes: form.modes,
         visibility: form.visibility,
@@ -108,6 +167,8 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
         budgetType: form.budgetType,
         genderPref: form.genderPref,
         currency: form.currency,
+        languages: form.languages,
+        employmentType: form.employmentType,
       };
       if (job) {
         await apiClient(`/jobs/${job.id}`, { method: "PATCH", body: JSON.stringify(body) });
@@ -126,22 +187,34 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="text-3xl font-bold">{job ? "Edit requirement" : "Request a tutor"}</h1>
-      <p className="mt-2 text-[rgb(var(--muted-foreground))]">
+      <h1 className="text-2xl font-bold sm:text-3xl">{job ? "Edit requirement" : "Request a tutor"}</h1>
+      <p className="mt-2 text-sm text-slate-600 sm:text-base">
         Short steps. Tutors apply in WTWS — never put your phone in the post.
       </p>
-      <div className="mt-6 flex gap-2 text-sm font-semibold">
+      
+      {/* Progress Steps */}
+      <div className="mt-6 flex gap-1 overflow-x-auto pb-2 sm:gap-2">
         {STEPS.map((label, i) => (
-          <span
+          <button
             key={label}
-            className={`rounded-full px-3 py-1 ${i === step ? "bg-[rgb(var(--wtws-blue))] text-white" : "bg-[rgb(var(--muted))]"}`}
+            type="button"
+            onClick={() => i < step && setStep(i)}
+            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
+              i === step
+                ? "bg-[rgb(var(--wtws-blue))] text-white"
+                : i < step
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-slate-100 text-slate-500"
+            }`}
           >
             {i + 1}. {label}
-          </span>
+          </button>
         ))}
       </div>
-      <form onSubmit={onSubmit} className="mt-8 space-y-4">
-        {step === 0 ? (
+
+      <form onSubmit={onSubmit} className="mt-6 space-y-4 sm:mt-8">
+        {/* Step 1: Requirement Details */}
+        {step === 0 && (
           <>
             <label className="block text-sm font-medium">
               I want
@@ -157,16 +230,23 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                 ))}
               </Select>
             </label>
-            <label className="block text-sm font-medium">
-              Subject / skill
-              <Input
-                className="mt-1"
-                required
-                value={form.subject}
-                onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                placeholder="Any skill — Chemistry, Python, Guitar, IELTS…"
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium">
+                Subject / Skills <span className="text-red-500">*</span>
+              </label>
+              <MultiSelect
+                options={[...SKILL_SUGGESTIONS]}
+                selected={form.subjects}
+                onChange={(subjects) => setForm({ ...form, subjects })}
+                placeholder="Search or add subjects..."
+                allowCustom
               />
-            </label>
+              <p className="text-xs text-slate-500">
+                Select from dropdown or type to add custom subjects
+              </p>
+            </div>
+
             <label className="block text-sm font-medium">
               Title (optional)
               <Input
@@ -176,11 +256,15 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                 placeholder="Leave blank to auto-fill from subject and city"
               />
             </label>
-            <p className="text-sm font-medium text-red-600">
-              Please don&apos;t share any contact details (phone, email, website) here.
-            </p>
+
+            <div className="rounded-lg bg-red-50 p-3">
+              <p className="text-sm font-medium text-red-700">
+                ⚠️ Please don&apos;t share any contact details (phone, email, website) here.
+              </p>
+            </div>
+
             <label className="block text-sm font-medium">
-              Details of your requirement
+              Details of your requirement <span className="text-red-500">*</span>
               <Textarea
                 className="mt-1 min-h-28"
                 required
@@ -190,6 +274,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                 placeholder="Required experience, expectations, budget, time, task details."
               />
             </label>
+
             <label className="block text-sm font-medium">
               Your level
               <Select className="mt-1" value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })}>
@@ -198,11 +283,56 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                 ))}
               </Select>
             </label>
+
+            {/* Attachment Upload */}
+            <div className="space-y-2">
+              <label className="block text-sm font-medium">
+                Supporting Documents (optional)
+              </label>
+              <div
+                className="cursor-pointer rounded-lg border-2 border-dashed border-slate-200 p-4 text-center hover:border-blue-400 hover:bg-blue-50/50"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  multiple
+                  onChange={handleFileChange}
+                />
+                <svg className="mx-auto h-8 w-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p className="mt-2 text-sm text-slate-600">
+                  Click to upload syllabus, assignment, or reference materials
+                </p>
+                <p className="text-xs text-slate-400">PDF, DOC, JPG, PNG (max 5MB each, up to 3 files)</p>
+              </div>
+              {attachments.length > 0 && (
+                <ul className="space-y-1">
+                  {attachments.map((file, i) => (
+                    <li key={i} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                      <span className="truncate">{file.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeAttachment(i)}
+                        className="ml-2 text-red-500 hover:text-red-700"
+                      >
+                        ×
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           </>
-        ) : null}
-        {step === 1 ? (
+        )}
+
+        {/* Step 2: Location & Preferences */}
+        {step === 1 && (
           <>
-            {!job ? (
+            {!job && (
               <label className="block text-sm font-medium">
                 Phone
                 <Input
@@ -213,35 +343,86 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                   placeholder="+919876543210"
                 />
               </label>
-            ) : null}
-            <p className="text-sm font-medium">Meeting options</p>
-            <div className="flex flex-wrap gap-2">
-              {TEACHING_MODES.map((m) => (
-                <button
-                  key={m}
-                  type="button"
-                  onClick={() => toggleMode(m)}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                    form.modes.includes(m) ? "bg-[rgb(var(--wtws-blue))] text-white" : "bg-[rgb(var(--muted))]"
-                  }`}
-                >
-                  {MODE_LABELS[m]}
-                </button>
-              ))}
+            )}
+
+            <div className="space-y-2">
+              <p className="text-sm font-medium">Meeting options</p>
+              <div className="flex flex-wrap gap-2">
+                {TEACHING_MODES.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => toggleMode(m)}
+                    className={`rounded-full px-3 py-1.5 text-sm font-semibold transition sm:px-4 sm:py-2 ${
+                      form.modes.includes(m) ? "bg-[rgb(var(--wtws-blue))] text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    }`}
+                  >
+                    {MODE_LABELS[m]}
+                  </button>
+                ))}
+              </div>
             </div>
-            <label className="block text-sm font-medium">
-              Location
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Location</label>
+                <button
+                  type="button"
+                  onClick={detectLocation}
+                  disabled={detectingLocation}
+                  className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  {detectingLocation ? "Detecting..." : "Auto-detect"}
+                </button>
+              </div>
               <Input
-                className="mt-1"
                 value={form.city}
                 onChange={(e) => setForm({ ...form, city: e.target.value })}
                 placeholder="City, region"
               />
-            </label>
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium">Get tutors from (Country)</label>
+              <SearchableSelect
+                options={[...COUNTRY_OPTIONS]}
+                value={form.country}
+                onChange={(country) => setForm({ ...form, country })}
+                placeholder="Search country..."
+                allowCustom
+              />
+            </div>
+
+            <div className="space-y-1">
+              <label className="block text-sm font-medium">Communicate in (Languages)</label>
+              <MultiSelect
+                options={[...LANGUAGE_OPTIONS]}
+                selected={form.languages}
+                onChange={(languages) => setForm({ ...form, languages })}
+                placeholder="Select languages..."
+                allowCustom
+              />
+            </div>
+
             <label className="block text-sm font-medium">
-              Country
-              <Input className="mt-1" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} />
+              Employment Type
+              <Select
+                className="mt-1"
+                value={form.employmentType}
+                onChange={(e) => setForm({ ...form, employmentType: e.target.value as EmploymentType })}
+              >
+                {EMPLOYMENT_TYPES.map((t) => (
+                  <option key={t} value={t}>
+                    {EMPLOYMENT_TYPE_LABELS[t]}
+                  </option>
+                ))}
+              </Select>
             </label>
+
             <label className="block text-sm font-medium">
               Who can see this?
               <Select
@@ -254,8 +435,10 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
               </Select>
             </label>
           </>
-        ) : null}
-        {step === 2 ? (
+        )}
+
+        {/* Step 3: Budget & Schedule */}
+        {step === 2 && (
           <>
             <label className="block text-sm font-medium">
               When do you need this?
@@ -267,6 +450,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                 ))}
               </Select>
             </label>
+
             <label className="block text-sm font-medium">
               How often?
               <Select className="mt-1" value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })}>
@@ -277,32 +461,35 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                 ))}
               </Select>
             </label>
-            <label className="block text-sm font-medium">
-              Currency
-              <Select
-                className="mt-1"
-                value={form.currency}
-                onChange={(e) => setForm({ ...form, currency: e.target.value })}
-              >
-                {CURRENCIES.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </Select>
-            </label>
-            <label className="block text-sm font-medium">
-              Budget type
-              <Select className="mt-1" value={form.budgetType} onChange={(e) => setForm({ ...form, budgetType: e.target.value })}>
-                {BUDGET_TYPES.map((v) => (
-                  <option key={v} value={v}>
-                    {BUDGET_TYPE_LABELS[v]}
-                  </option>
-                ))}
-              </Select>
-            </label>
-            {form.budgetType !== "FREE" ? (
-              <>
+
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block text-sm font-medium">
+                Currency
+                <Select
+                  className="mt-1"
+                  value={form.currency}
+                  onChange={(e) => setForm({ ...form, currency: e.target.value })}
+                >
+                  {CURRENCIES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </Select>
+              </label>
+
+              <label className="block text-sm font-medium">
+                Budget type
+                <Select className="mt-1" value={form.budgetType} onChange={(e) => setForm({ ...form, budgetType: e.target.value })}>
+                  {BUDGET_TYPES.map((v) => (
+                    <option key={v} value={v}>
+                      {BUDGET_TYPE_LABELS[v]}
+                    </option>
+                  ))}
+                </Select>
+              </label>
+            </div>
+
+            {form.budgetType !== "FREE" && (
+              <div className="grid grid-cols-2 gap-3">
                 <label className="block text-sm font-medium">
                   Budget from ({form.currency})
                   <Input
@@ -311,6 +498,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                     min={0}
                     value={form.budgetMin}
                     onChange={(e) => setForm({ ...form, budgetMin: e.target.value })}
+                    placeholder="Min"
                   />
                 </label>
                 <label className="block text-sm font-medium">
@@ -321,12 +509,18 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                     min={0}
                     value={form.budgetMax}
                     onChange={(e) => setForm({ ...form, budgetMax: e.target.value })}
+                    placeholder="Max"
                   />
                 </label>
-              </>
-            ) : (
-              <p className="text-sm text-[rgb(var(--muted-foreground))]">This request is listed as free.</p>
+              </div>
             )}
+
+            {form.budgetType === "FREE" && (
+              <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">
+                ✓ This request is listed as free.
+              </p>
+            )}
+
             <label className="block text-sm font-medium">
               Teacher preference
               <Select className="mt-1" value={form.genderPref} onChange={(e) => setForm({ ...form, genderPref: e.target.value })}>
@@ -338,16 +532,18 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
               </Select>
             </label>
           </>
-        ) : null}
-        {error ? <p className="text-sm text-red-600">{error}</p> : null}
-        <div className="flex gap-2">
-          {step > 0 ? (
+        )}
+
+        {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>}
+
+        <div className="flex gap-2 pt-2">
+          {step > 0 && (
             <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}>
               Back
             </Button>
-          ) : null}
-          <Button type="submit" disabled={loading}>
-            {step < 2 ? "Continue" : loading ? "Saving…" : job ? "Save changes" : "Post requirement and get teachers"}
+          )}
+          <Button type="submit" disabled={loading} className="flex-1">
+            {step < 2 ? "Continue" : loading ? "Saving…" : job ? "Save changes" : "Post requirement"}
           </Button>
         </div>
       </form>
