@@ -20,11 +20,8 @@ import {
   SKILL_SUGGESTIONS,
   LANGUAGE_OPTIONS,
   COUNTRY_OPTIONS,
-  EMPLOYMENT_TYPES,
-  EMPLOYMENT_TYPE_LABELS,
   type JobCard,
   type TeachingMode,
-  type EmploymentType,
 } from "@wtws/shared";
 import { apiClient } from "@/lib/client";
 import type { Me } from "@/lib/api";
@@ -67,7 +64,6 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
     genderPref: job?.genderPref ?? "ANY",
     currency: job?.currency ?? "INR",
     languages: [] as string[],
-    employmentType: "FLEXIBLE" as EmploymentType,
   });
 
   useEffect(() => {
@@ -168,7 +164,6 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
         genderPref: form.genderPref,
         currency: form.currency,
         languages: form.languages,
-        employmentType: form.employmentType,
       };
       if (job) {
         await apiClient(`/jobs/${job.id}`, { method: "PATCH", body: JSON.stringify(body) });
@@ -187,19 +182,19 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
 
   return (
     <div className="mx-auto max-w-xl">
-      <h1 className="text-2xl font-bold sm:text-3xl">{job ? "Edit requirement" : "Request a tutor"}</h1>
-      <p className="mt-2 text-sm text-slate-600 sm:text-base">
+      <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{job ? "Edit requirement" : "Request a tutor"}</h1>
+      <p className="mt-2 text-sm text-slate-500">
         Short steps. Tutors apply in WTWS — never put your phone in the post.
       </p>
       
       {/* Progress Steps */}
-      <div className="mt-6 flex gap-1 overflow-x-auto pb-2 sm:gap-2">
+      <div className="mt-6 flex gap-2">
         {STEPS.map((label, i) => (
           <button
             key={label}
             type="button"
             onClick={() => i < step && setStep(i)}
-            className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition sm:px-4 sm:py-2 sm:text-sm ${
+            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
               i === step
                 ? "bg-[rgb(var(--wtws-blue))] text-white"
                 : i < step
@@ -212,14 +207,13 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
         ))}
       </div>
 
-      <form onSubmit={onSubmit} className="mt-6 space-y-4 sm:mt-8">
+      <form onSubmit={onSubmit} className="mt-8 space-y-5">
         {/* Step 1: Requirement Details */}
         {step === 0 && (
           <>
-            <label className="block text-sm font-medium">
-              I want
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">I want</label>
               <Select
-                className="mt-1"
                 value={form.type}
                 onChange={(e) => setForm({ ...form, type: e.target.value as "TUTORING" | "ASSIGNMENT" })}
               >
@@ -229,10 +223,10 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                   </option>
                 ))}
               </Select>
-            </label>
+            </div>
 
-            <div className="space-y-1">
-              <label className="block text-sm font-medium">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
                 Subject / Skills <span className="text-red-500">*</span>
               </label>
               <MultiSelect
@@ -242,55 +236,56 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                 placeholder="Search or add subjects..."
                 allowCustom
               />
-              <p className="text-xs text-slate-500">
-                Select from dropdown or type to add custom subjects
+              <p className="mt-1 text-xs text-slate-400">
+                If not in options above, add a new subject
               </p>
             </div>
 
-            <label className="block text-sm font-medium">
-              Title (optional)
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Title (optional)</label>
               <Input
-                className="mt-1"
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 placeholder="Leave blank to auto-fill from subject and city"
               />
-            </label>
+            </div>
 
-            <div className="rounded-lg bg-red-50 p-3">
-              <p className="text-sm font-medium text-red-700">
+            <div className="rounded-lg border border-red-200 bg-red-50 p-3">
+              <p className="text-sm text-red-600">
                 ⚠️ Please don&apos;t share any contact details (phone, email, website) here.
               </p>
             </div>
 
-            <label className="block text-sm font-medium">
-              Details of your requirement <span className="text-red-500">*</span>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                Details of your requirement <span className="text-red-500">*</span>
+              </label>
               <Textarea
-                className="mt-1 min-h-28"
+                className="min-h-32"
                 required
                 minLength={20}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder="Required experience, expectations, budget, time, task details."
               />
-            </label>
+            </div>
 
-            <label className="block text-sm font-medium">
-              Your level
-              <Select className="mt-1" value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })}>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Your level</label>
+              <Select value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value })}>
                 {LEVELS.map((l) => (
                   <option key={l}>{l}</option>
                 ))}
               </Select>
-            </label>
+            </div>
 
             {/* Attachment Upload */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">
                 Supporting Documents (optional)
               </label>
               <div
-                className="cursor-pointer rounded-lg border-2 border-dashed border-slate-200 p-4 text-center hover:border-blue-400 hover:bg-blue-50/50"
+                className="cursor-pointer rounded-lg border-2 border-dashed border-slate-200 bg-slate-50 p-6 text-center transition hover:border-blue-400 hover:bg-blue-50/30"
                 onClick={() => fileInputRef.current?.click()}
               >
                 <input
@@ -301,23 +296,23 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                   multiple
                   onChange={handleFileChange}
                 />
-                <svg className="mx-auto h-8 w-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                <svg className="mx-auto h-10 w-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                 </svg>
-                <p className="mt-2 text-sm text-slate-600">
+                <p className="mt-2 text-sm text-slate-500">
                   Click to upload syllabus, assignment, or reference materials
                 </p>
-                <p className="text-xs text-slate-400">PDF, DOC, JPG, PNG (max 5MB each, up to 3 files)</p>
+                <p className="mt-1 text-xs text-slate-400">PDF, DOC, JPG, PNG (max 5MB each, up to 3 files)</p>
               </div>
               {attachments.length > 0 && (
-                <ul className="space-y-1">
+                <ul className="mt-2 space-y-1">
                   {attachments.map((file, i) => (
-                    <li key={i} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-sm">
-                      <span className="truncate">{file.name}</span>
+                    <li key={i} className="flex items-center justify-between rounded-lg bg-slate-100 px-3 py-2 text-sm">
+                      <span className="truncate text-slate-700">{file.name}</span>
                       <button
                         type="button"
                         onClick={() => removeAttachment(i)}
-                        className="ml-2 text-red-500 hover:text-red-700"
+                        className="ml-2 text-slate-400 hover:text-red-500"
                       >
                         ×
                       </button>
@@ -333,28 +328,29 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
         {step === 1 && (
           <>
             {!job && (
-              <label className="block text-sm font-medium">
-                Phone
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Phone</label>
                 <Input
-                  className="mt-1"
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+919876543210"
                 />
-              </label>
+              </div>
             )}
 
-            <div className="space-y-2">
-              <p className="text-sm font-medium">Meeting options</p>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Meeting options</label>
               <div className="flex flex-wrap gap-2">
                 {TEACHING_MODES.map((m) => (
                   <button
                     key={m}
                     type="button"
                     onClick={() => toggleMode(m)}
-                    className={`rounded-full px-3 py-1.5 text-sm font-semibold transition sm:px-4 sm:py-2 ${
-                      form.modes.includes(m) ? "bg-[rgb(var(--wtws-blue))] text-white" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                      form.modes.includes(m) 
+                        ? "bg-[rgb(var(--wtws-blue))] text-white" 
+                        : "bg-slate-100 text-slate-600 hover:bg-slate-200"
                     }`}
                   >
                     {MODE_LABELS[m]}
@@ -363,16 +359,16 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">Location</label>
+            <div>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label className="text-sm font-medium text-slate-700">Location</label>
                 <button
                   type="button"
                   onClick={detectLocation}
                   disabled={detectingLocation}
                   className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700"
                 >
-                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
@@ -386,8 +382,8 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="block text-sm font-medium">Get tutors from (Country)</label>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Get tutors from (Country)</label>
               <SearchableSelect
                 options={[...COUNTRY_OPTIONS]}
                 value={form.country}
@@ -397,8 +393,8 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
               />
             </div>
 
-            <div className="space-y-1">
-              <label className="block text-sm font-medium">Communicate in (Languages)</label>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Communicate in (Languages)</label>
               <MultiSelect
                 options={[...LANGUAGE_OPTIONS]}
                 selected={form.languages}
@@ -408,65 +404,48 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
               />
             </div>
 
-            <label className="block text-sm font-medium">
-              Employment Type
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Who can see this?</label>
               <Select
-                className="mt-1"
-                value={form.employmentType}
-                onChange={(e) => setForm({ ...form, employmentType: e.target.value as EmploymentType })}
-              >
-                {EMPLOYMENT_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {EMPLOYMENT_TYPE_LABELS[t]}
-                  </option>
-                ))}
-              </Select>
-            </label>
-
-            <label className="block text-sm font-medium">
-              Who can see this?
-              <Select
-                className="mt-1"
                 value={form.visibility}
                 onChange={(e) => setForm({ ...form, visibility: e.target.value as "PUBLIC" | "PRIVATE" })}
               >
                 <option value="PUBLIC">Public — tutors can apply</option>
                 <option value="PRIVATE">Private — I will contact tutors</option>
               </Select>
-            </label>
+            </div>
           </>
         )}
 
         {/* Step 3: Budget & Schedule */}
         {step === 2 && (
           <>
-            <label className="block text-sm font-medium">
-              When do you need this?
-              <Select className="mt-1" value={form.whenNeeded} onChange={(e) => setForm({ ...form, whenNeeded: e.target.value })}>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">When do you need this?</label>
+              <Select value={form.whenNeeded} onChange={(e) => setForm({ ...form, whenNeeded: e.target.value })}>
                 {WHEN_NEEDED.map((v) => (
                   <option key={v} value={v}>
                     {WHEN_NEEDED_LABELS[v]}
                   </option>
                 ))}
               </Select>
-            </label>
+            </div>
 
-            <label className="block text-sm font-medium">
-              How often?
-              <Select className="mt-1" value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })}>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">How often?</label>
+              <Select value={form.frequency} onChange={(e) => setForm({ ...form, frequency: e.target.value })}>
                 {JOB_FREQUENCIES.map((v) => (
                   <option key={v} value={v}>
                     {FREQUENCY_LABELS[v]}
                   </option>
                 ))}
               </Select>
-            </label>
+            </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <label className="block text-sm font-medium">
-                Currency
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Currency</label>
                 <Select
-                  className="mt-1"
                   value={form.currency}
                   onChange={(e) => setForm({ ...form, currency: e.target.value })}
                 >
@@ -474,76 +453,77 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                     <option key={c} value={c}>{c}</option>
                   ))}
                 </Select>
-              </label>
-
-              <label className="block text-sm font-medium">
-                Budget type
-                <Select className="mt-1" value={form.budgetType} onChange={(e) => setForm({ ...form, budgetType: e.target.value })}>
+              </div>
+              <div>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Budget type</label>
+                <Select value={form.budgetType} onChange={(e) => setForm({ ...form, budgetType: e.target.value })}>
                   {BUDGET_TYPES.map((v) => (
                     <option key={v} value={v}>
                       {BUDGET_TYPE_LABELS[v]}
                     </option>
                   ))}
                 </Select>
-              </label>
+              </div>
             </div>
 
             {form.budgetType !== "FREE" && (
-              <div className="grid grid-cols-2 gap-3">
-                <label className="block text-sm font-medium">
-                  Budget from ({form.currency})
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Budget from ({form.currency})</label>
                   <Input
-                    className="mt-1"
                     type="number"
                     min={0}
                     value={form.budgetMin}
                     onChange={(e) => setForm({ ...form, budgetMin: e.target.value })}
                     placeholder="Min"
                   />
-                </label>
-                <label className="block text-sm font-medium">
-                  Budget to ({form.currency})
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Budget to ({form.currency})</label>
                   <Input
-                    className="mt-1"
                     type="number"
                     min={0}
                     value={form.budgetMax}
                     onChange={(e) => setForm({ ...form, budgetMax: e.target.value })}
                     placeholder="Max"
                   />
-                </label>
+                </div>
               </div>
             )}
 
             {form.budgetType === "FREE" && (
-              <p className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">
-                ✓ This request is listed as free.
-              </p>
+              <div className="rounded-lg bg-emerald-50 p-3">
+                <p className="text-sm text-emerald-700">✓ This request is listed as free.</p>
+              </div>
             )}
 
-            <label className="block text-sm font-medium">
-              Teacher preference
-              <Select className="mt-1" value={form.genderPref} onChange={(e) => setForm({ ...form, genderPref: e.target.value })}>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Teacher preference</label>
+              <Select value={form.genderPref} onChange={(e) => setForm({ ...form, genderPref: e.target.value })}>
                 {GENDER_PREFS.map((v) => (
                   <option key={v} value={v}>
                     {GENDER_PREF_LABELS[v]}
                   </option>
                 ))}
               </Select>
-            </label>
+            </div>
           </>
         )}
 
-        {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">{error}</p>}
+        {error && (
+          <div className="rounded-lg bg-red-50 p-3">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
 
-        <div className="flex gap-2 pt-2">
+        <div className="flex gap-3 pt-2">
           {step > 0 && (
-            <Button type="button" variant="secondary" onClick={() => setStep(step - 1)}>
+            <Button type="button" variant="secondary" onClick={() => setStep(step - 1)} className="px-6">
               Back
             </Button>
           )}
           <Button type="submit" disabled={loading} className="flex-1">
-            {step < 2 ? "Continue" : loading ? "Saving…" : job ? "Save changes" : "Post requirement"}
+            {step < 2 ? "Continue" : loading ? "Saving…" : job ? "Save changes" : "Post requirement and get teachers"}
           </Button>
         </div>
       </form>
