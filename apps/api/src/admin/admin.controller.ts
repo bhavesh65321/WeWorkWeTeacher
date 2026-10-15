@@ -6,6 +6,7 @@ import { CurrentUser, type AuthUser } from "../auth/current-user.decorator";
 import { PrismaService } from "../prisma/prisma.service";
 import { WalletService } from "../wallet/wallet.service";
 import { ChatService } from "../chat/chat.service";
+import { AdminMetricsService } from "./admin-metrics.service";
 import { asStringArray } from "../json-list";
 import { track } from "../analytics";
 
@@ -50,6 +51,7 @@ export class AdminController {
     private readonly prisma: PrismaService,
     private readonly wallet: WalletService,
     private readonly chat: ChatService,
+    private readonly metrics: AdminMetricsService,
   ) {}
 
   private async assertAdmin(userId: string) {
@@ -68,6 +70,12 @@ export class AdminController {
       this.prisma.payment.findMany({ where: { status: "PAID" }, orderBy: { createdAt: "desc" }, take: 30 }),
     ]);
     return { users, jobs, flags, tickets, payments };
+  }
+
+  @Get("metrics")
+  async growthMetrics(@CurrentUser() user: AuthUser) {
+    await this.assertAdmin(user.sub);
+    return this.metrics.getMetrics();
   }
 
   @Post("flags")
