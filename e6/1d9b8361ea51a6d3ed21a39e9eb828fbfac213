@@ -1,0 +1,29 @@
+apps/api/src/admin/admin.controller.ts
+  s_e2ef7f480398aa::t_81f377e98bf572 54
+  s_e2ef7f480398aa::t_0c5fbd1e1b42be 75-80
+  s_e2ef7f480398aa::t_ae26f25fde18aa 9
+apps/api/src/admin/admin.module.ts
+  s_e2ef7f480398aa::t_11babab5caeae3 3,11
+apps/api/src/admin/admin-metrics.service.ts
+  s_e2ef7f480398aa::t_1d8df77e0e0c99 1-111,113-225
+  s_e2ef7f480398aa::t_aae709005b9837 112
+apps/web/app/admin/page.tsx
+  s_e2ef7f480398aa::t_7b39122bed44bd 6,13-22,25-148,151,155-160,167-169,172-184,186-258,260-296,305,307-322,324,328-331,335,337-358
+  s_e2ef7f480398aa::t_98e61fbbe8ba0b 185
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e61d9b8361ea51a6d3ed21a39e9eb828fbfac213",
+  "prompts": {},
+  "sessions": {
+    "s_e2ef7f480398aa": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "f8cee202-87e5-43c4-acaa-47c74c92f019",
+        "model": "default"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
