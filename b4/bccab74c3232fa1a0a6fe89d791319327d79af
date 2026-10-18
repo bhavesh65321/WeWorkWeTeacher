@@ -1,0 +1,73 @@
+apps/web/app/tutors/[slug]/page.tsx
+  s_11106e1ec74c31::t_94838df5ded2cc 210
+apps/web/components/student-dashboard.tsx
+  s_11106e1ec74c31::t_36bc124e39230d 33
+apps/api/src/auth/auth.service.ts
+  s_11106e1ec74c31::t_a0bb4de11817ea 315
+apps/api/src/payments/payments.service.ts
+  s_11106e1ec74c31::t_322465fef5f451 79
+apps/api/src/auth/otp.service.ts
+  s_11106e1ec74c31::t_e7caf3431859cd 91,93-94
+  s_11106e1ec74c31::t_9b5c7e237a60b0 115
+apps/web/components/job-requirement-form.tsx
+  s_11106e1ec74c31::t_e81fceb6f77bc2 187
+apps/web/components/brand-mark.tsx
+  s_11106e1ec74c31::t_4328224c063832 5,7,10,14,16,28-29
+  s_11106e1ec74c31::t_f8d4b410490c18 1,4,6,8,11-13,15,17-18,22-27,30-31
+  s_11106e1ec74c31::t_8eae8166e049a2 32-33
+apps/web/app/terms/page.tsx
+  s_11106e1ec74c31::t_6589782bd49ff8 8
+apps/web/app/support/page.tsx
+  s_11106e1ec74c31::t_8fda9d16d137b1 156-157
+apps/web/components/footer.tsx
+  s_11106e1ec74c31::t_55da2f1e825376 32
+apps/web/app/page.tsx
+  s_11106e1ec74c31::t_7e9a0e4f8fb5ae 82
+  s_11106e1ec74c31::t_b3b581376d5bd1 67
+apps/web/app/cookies/page.tsx
+  s_11106e1ec74c31::t_4104facead5312 8
+.env.example
+  s_11106e1ec74c31::t_4a5ebcce1aa33a 14
+apps/web/components/contact-unlock-panel.tsx
+  s_11106e1ec74c31::t_873cae3e5fff5d 36
+apps/web/components/home-featured.tsx
+  s_11106e1ec74c31::t_8663303118ffb7 26
+  s_11106e1ec74c31::t_421cc88c93dc45 70
+packages/ui/src/styles.css
+  s_11106e1ec74c31::t_11e2a20d063594 2-5,8
+apps/api/src/notifications/email.service.ts
+  s_11106e1ec74c31::t_f62c3b9f0f183a 29
+apps/web/components/conversation-view.tsx
+  s_11106e1ec74c31::t_3cef9dbdc27d35 135
+apps/web/public/manifest.json
+  s_11106e1ec74c31::t_8d63d74db60209 2-3,7-21
+README.md
+  s_11106e1ec74c31::t_587fe4584dacb3 1,3
+apps/web/app/how-it-works/page.tsx
+  s_11106e1ec74c31::t_a30f910eee7cab 8,10
+  s_11106e1ec74c31::t_be0a5373416a86 18
+apps/web/app/login/page.tsx
+  s_11106e1ec74c31::t_1b675b3675c6fd 4,15-18,20
+apps/web/app/layout.tsx
+  s_11106e1ec74c31::t_a81abe7bc8b58c 16-17,19,21-25
+apps/api/src/jobs/jobs.service.ts
+  s_11106e1ec74c31::t_05398d2da7ca83 137
+apps/web/app/register/page.tsx
+  s_11106e1ec74c31::t_992215a7b4789b 4,15-18,20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "b4bccab74c3232fa1a0a6fe89d791319327d79af",
+  "prompts": {},
+  "sessions": {
+    "s_11106e1ec74c31": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "30dbd06b-d401-40e9-a3c1-6dee25cb5a57",
+        "model": "default"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
