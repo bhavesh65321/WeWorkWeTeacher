@@ -153,8 +153,8 @@ export default function SupportPage() {
             </div>
             <h3 className="mt-3 font-semibold text-slate-900">Email us</h3>
             <p className="mt-1 text-sm text-slate-500">Prefer email? Reach us directly.</p>
-            <a href="mailto:support@wtws.com" className="mt-3 inline-block text-sm font-semibold text-[rgb(var(--wtws-blue))] hover:underline">
-              support@wtws.com
+            <a href="mailto:support@gurumates.com" className="mt-3 inline-block text-sm font-semibold text-[rgb(var(--wtws-blue))] hover:underline">
+              support@gurumates.com
             </a>
           </div>
 

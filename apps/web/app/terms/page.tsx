@@ -5,7 +5,7 @@ export const metadata = { title: "Terms of use" };
 export default function TermsPage() {
   return (
     <LegalPage title="Terms of use">
-      <p>WeTeacherWeStudent (WTWS) is a marketplace that connects students and tutors. You must be 13 or older.</p>
+      <p>gurumates is a marketplace that connects students and tutors. You must be 13 or older.</p>
       <p>Students post jobs or message tutors using coins. Tutors apply with coins. After contact is unlocked with coins, both parties may use in-app chat, phone, and WhatsApp to arrange lessons.</p>
       <p>Coin packs can be purchased using Cards or UPI via Stripe. Coins are used for job applications, messaging, contact unlocks, and premium upgrades.</p>
       <p>Do not share contact details in chat until contact is unlocked. Fake profiles, spam jobs, and academic-integrity violations may lead to account closure.</p>

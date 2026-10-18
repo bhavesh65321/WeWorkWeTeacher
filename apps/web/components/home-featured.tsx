@@ -23,7 +23,7 @@ export function HomeFeatured({
       <div className="flex flex-col justify-between gap-4 border-b border-slate-100 pb-4 sm:flex-row sm:items-center">
         <div>
           <h2 className="text-xl font-bold text-slate-900">Featured profiles</h2>
-          <p className="mt-0.5 text-sm text-slate-500">Published tutors and open jobs. Chat stays in WTWS until you pay.</p>
+          <p className="mt-0.5 text-sm text-slate-500">Published tutors and open jobs. Chat stays in gurumates until you unlock contact.</p>
         </div>
         <div className="inline-flex rounded-xl bg-slate-100 p-1 text-xs font-semibold text-slate-600">
           <button
@@ -67,7 +67,7 @@ export function HomeFeatured({
                   </span>
                 </div>
                 <p className="line-clamp-2 text-xs leading-relaxed text-slate-600">
-                  {tutor.bio ?? tutor.teachingApproach ?? "Published teaching profile on WTWS."}
+                  {tutor.bio ?? tutor.teachingApproach ?? "Published teaching profile on gurumates."}
                 </p>
                 <div className="flex flex-wrap gap-1.5">
                   {tutor.modes.slice(0, 2).map((m) => (

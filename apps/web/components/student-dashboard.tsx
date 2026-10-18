@@ -30,7 +30,7 @@ export function StudentDashboard({
         title="Student dashboard"
         subtitle={
           <>
-            Hi <span className="font-medium">{name}</span>. Post a need, wait for applies, then pay in WTWS.
+            Hi <span className="font-medium">{name}</span>. Post a need, wait for applies, then connect in gurumates.
             <CompletedBadges items={completedItems} />
           </>
         }

@@ -312,7 +312,7 @@ export class AuthService {
     const cutoff = new Date();
     cutoff.setFullYear(cutoff.getFullYear() - MIN_AGE);
     if (Number.isNaN(dob.getTime()) || dob > cutoff) {
-      throw new BadRequestException("You must be 13 or older to use WTWS");
+      throw new BadRequestException("You must be 13 or older to use gurumates");
     }
   }
 

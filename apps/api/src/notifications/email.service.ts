@@ -26,7 +26,7 @@ export class EmailService {
   }
 
   private get fromAddress() {
-    return this.config.get<string>("EMAIL_FROM") ?? "WTWS <noreply@wtws.dev>";
+    return this.config.get<string>("EMAIL_FROM") ?? "gurumates <noreply@gurumates.com>";
   }
 
   private get webOrigin() {

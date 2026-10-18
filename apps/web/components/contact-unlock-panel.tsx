@@ -33,7 +33,7 @@ export function ContactUnlockPanel({
         <div className="mt-3 flex flex-col gap-2 sm:flex-row">
           <a
             className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-lg bg-[#25D366] px-4 text-sm font-semibold text-white hover:bg-[#1ebe57]"
-            href={whatsappHref(otherPhone, `Hi ${otherName}, about ${jobTitle} on WTWS.`)}
+            href={whatsappHref(otherPhone, `Hi ${otherName}, about ${jobTitle} on gurumates.`)}
             target="_blank"
             rel="noreferrer"
           >

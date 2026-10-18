@@ -88,10 +88,10 @@ export class OtpService {
       method: "POST",
       headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        from: process.env.EMAIL_FROM ?? "WTWS <noreply@wtws.dev>",
+        from: process.env.EMAIL_FROM ?? "gurumates <noreply@gurumates.com>",
         to: [to],
-        subject: "Your WTWS verification code",
-        text: `Your WTWS code is ${code}. It expires in 10 minutes.`,
+        subject: "Your gurumates verification code",
+        text: `Your gurumates code is ${code}. It expires in 10 minutes.`,
       }),
     });
     if (!res.ok) throw new BadRequestException("Could not send email code");
@@ -112,7 +112,7 @@ export class OtpService {
         Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString("base64")}`,
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({ From: from, To: to, Body: `WTWS code: ${code}. Expires in 10 minutes.` }),
+      body: new URLSearchParams({ From: from, To: to, Body: `gurumates code: ${code}. Expires in 10 minutes.` }),
     });
     if (!res.ok) throw new BadRequestException("Could not send SMS code");
     return "sms" as const;

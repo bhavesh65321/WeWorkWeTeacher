@@ -184,7 +184,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
     <div className="mx-auto max-w-xl">
       <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">{job ? "Edit requirement" : "Request a tutor"}</h1>
       <p className="mt-2 text-sm text-slate-500">
-        Short steps. Tutors apply in WTWS — never put your phone in the post.
+        Short steps. Tutors apply in gurumates — never put your phone in the post.
       </p>
       
       {/* Progress Steps */}

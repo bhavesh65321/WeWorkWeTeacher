@@ -207,7 +207,7 @@ export default async function TutorProfilePage({ params }: { params: Promise<{ s
           ) : me ? (
             <>
               <p className="mt-3 text-sm text-[rgb(var(--muted-foreground))]">
-                Message in WTWS. Phone stays hidden until the student pays.
+                Message in gurumates. Phone stays hidden until contact is unlocked.
               </p>
               <MessageTutorButton tutorUserId={tutor.userId} tutorName={tutor.name} />
               <Link

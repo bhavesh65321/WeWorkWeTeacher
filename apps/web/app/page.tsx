@@ -64,7 +64,7 @@ export default async function HomePage() {
         />
         <TrustCard
           number="2"
-          title="Chat in WTWS"
+          title="Chat in gurumates"
           body="Phone, email, and WhatsApp stay hidden. Build trust in chat first."
         />
         <TrustCard
@@ -79,7 +79,7 @@ export default async function HomePage() {
           <div className="relative z-10 flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
             <div className="max-w-2xl space-y-2">
               <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
-                Teach on WTWS
+                Teach on gurumates
               </h2>
               <p className="text-sm leading-relaxed text-blue-100 sm:text-base">
                 Get matched to students by skill. Apply with coins. Keep 100% of what you earn after unlock.

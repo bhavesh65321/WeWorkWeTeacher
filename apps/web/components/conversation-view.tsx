@@ -132,7 +132,7 @@ export function ConversationView({ id }: { id: string }) {
             className="min-h-11 min-w-0 max-h-32 flex-1 resize-none py-2.5 text-base sm:text-sm"
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Message in WTWS chat"
+            placeholder="Message in gurumates chat"
             required
             rows={1}
           />

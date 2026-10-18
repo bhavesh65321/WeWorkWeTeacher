@@ -76,7 +76,7 @@ export class PaymentsService {
           price_data: {
             currency: "inr",
             unit_amount: pack.amountMinor,
-            product_data: { name: `${pack.coins} WTWS coins` },
+            product_data: { name: `${pack.coins} gurumates coins` },
           },
         },
       ],

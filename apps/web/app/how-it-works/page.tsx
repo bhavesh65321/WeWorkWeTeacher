@@ -5,9 +5,9 @@ export const metadata = { title: "How it works" };
 export default function HowItWorksPage() {
   return (
     <div className="mx-auto max-w-4xl">
-      <h1 className="text-3xl font-bold">How WTWS works</h1>
+      <h1 className="text-3xl font-bold">How gurumates works</h1>
       <p className="mt-2 text-[rgb(var(--muted-foreground))]">
-        Same marketplace loop as TeacherOn — search, post, coins, apply — then connect on WTWS. Built-in classroom is later; after unlocking contact you chat here or on WhatsApp.
+        Search tutors, post a need, apply with coins, then connect on gurumates. Built-in classroom is later; after unlocking contact you chat here or on WhatsApp.
       </p>
       <div className="mt-10 grid gap-8 md:grid-cols-2">
         <section className="rounded-2xl border border-[rgb(var(--border))] p-6">
@@ -15,7 +15,7 @@ export default function HowItWorksPage() {
           <ol className="mt-4 list-decimal space-y-3 pl-5 text-sm">
             <li>Search tutors (All / Online / Home / Assignment) or post a requirement.</li>
             <li>Message a tutor with starter coins, or wait for tutors to apply to your post.</li>
-            <li>Chat in WTWS. Phone and WhatsApp unlock when you spend coins to unlock contact.</li>
+            <li>Chat in gurumates. Phone and WhatsApp unlock when you spend coins to unlock contact.</li>
             <li>Schedule sessions, connect directly via WhatsApp/call, then leave a review.</li>
           </ol>
           <div className="mt-6 flex gap-3">

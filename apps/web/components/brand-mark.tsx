@@ -1,19 +1,33 @@
+import Image from "next/image";
 import Link from "next/link";
 
-export function BrandMark() {
+export function BrandMark({ size = "default" }: { size?: "default" | "sm" | "lg" }) {
+  const heights = { sm: 28, default: 36, lg: 48 } as const;
+  const height = heights[size];
+  const width = Math.round(height * (600 / 258));
+
   return (
-    <Link href="/" className="group flex items-center gap-2">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[rgb(var(--wtws-blue))] text-lg font-black text-white transition group-hover:bg-[rgb(var(--wtws-blue-dark))]">
-        W
-      </span>
-      <div className="flex flex-col">
-        <span className="text-lg font-bold tracking-tight text-slate-900 group-hover:text-[rgb(var(--wtws-blue))]">
-          WTWS
-        </span>
-        <span className="-mt-1 hidden text-[9px] font-medium uppercase tracking-wide text-slate-400 sm:block">
-          WeTeacherWeStudent
-        </span>
-      </div>
+    <Link href="/" className="inline-flex shrink-0 items-center" aria-label="gurumates home">
+      <Image
+        src="/brand/logo.png"
+        alt="gurumates"
+        width={width}
+        height={height}
+        className="h-8 w-auto sm:h-9"
+        priority
+      />
     </Link>
+  );
+}
+
+export function BrandMarkIcon({ className }: { className?: string }) {
+  return (
+    <Image
+      src="/brand/mark.png"
+      alt="gurumates"
+      width={40}
+      height={40}
+      className={className ?? "h-9 w-9"}
+    />
   );
 }

@@ -134,7 +134,7 @@ export class JobsService {
       throw new ForbiddenException("Your account has been blocked. Contact support.");
     }
     if (containsContactLeak(dto.description) || containsContactLeak(dto.title)) {
-      throw new BadRequestException("Don't share phone, email, or links in the post. Tutors apply in WTWS.");
+      throw new BadRequestException("Don't share phone, email, or links in the post. Tutors apply in gurumates.");
     }
     const dayAgo = new Date(Date.now() - 24 * 36e5);
     const postedToday = await this.prisma.job.count({

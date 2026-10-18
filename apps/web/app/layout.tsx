@@ -13,11 +13,16 @@ const sans = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: {
-    default: "WeTeacherWeStudent",
-    template: "%s · WTWS",
+    default: "gurumates — find tutors, learn better",
+    template: "%s · gurumates",
   },
-  description: "Find verified tutors. Book, pay, and learn on one platform.",
+  description: "Find trusted tutors. Post your need, chat safely, unlock contact with coins.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [{ url: "/icon.png", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png" }],
+  },
+  themeColor: "#0080D0",
 };
 
 export const viewport = {

@@ -1,6 +1,6 @@
-# WeTeacherWeStudent (WTWS)
+# gurumates
 
-Open GA path: TeacherOn marketplace loop, coins, chat, booking, and escrow. **Classroom (video) is later** — after pay, parties use in-app chat plus unlocked phone/WhatsApp.
+Find trusted tutors. Post a need, chat safely, unlock contact with coins. **Classroom (video) is later** — after unlock, parties use in-app chat plus phone/WhatsApp.
 
 ## Run locally
 
