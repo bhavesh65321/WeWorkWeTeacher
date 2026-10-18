@@ -1,0 +1,21 @@
+apps/web/components/brand-mark.tsx
+  s_11106e1ec74c31::t_7b356bca7e3ca1 5-6,8,17,29-31
+apps/web/components/header.tsx
+  s_11106e1ec74c31::t_de42c7ac51b50b 36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "bd7d8f805cda377650ea2ed632f1541f7da3b896",
+  "prompts": {},
+  "sessions": {
+    "s_11106e1ec74c31": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "30dbd06b-d401-40e9-a3c1-6dee25cb5a57",
+        "model": "default"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
