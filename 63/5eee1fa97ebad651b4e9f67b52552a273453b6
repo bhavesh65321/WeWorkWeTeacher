@@ -1,0 +1,41 @@
+apps/web/components/contact-unlock-panel.tsx
+  s_11106e1ec74c31::t_de2902a2614eb6 1-163
+apps/web/components/tutor-dashboard.tsx
+  s_11106e1ec74c31::t_a4ec83d72a3948 78
+  s_11106e1ec74c31::t_1861f7e3ea3ee6 4,6,8,16,19,29,34-37,47,55,64-77,79-106,108-136,139-140,142-143,146-153,157,167,186,191,194
+apps/api/src/notifications/email.service.ts
+  s_11106e1ec74c31::t_2dd9caca92bb5e 1-129
+apps/api/src/notifications/notifications.module.ts
+  s_11106e1ec74c31::t_abe0b14192cda9 4,10-11
+apps/web/app/dashboard/page.tsx
+  s_11106e1ec74c31::t_0b1392e161170a 13-17,31
+apps/api/src/jobs/jobs.service.ts
+  s_11106e1ec74c31::t_5555a355c91f8b 8,16
+  s_11106e1ec74c31::t_45a4dbfc26ff36 212,246-247,264-273
+apps/web/app/page.tsx
+  s_11106e1ec74c31::t_2e126963ea7de6 17-18,21-23,25-26,28-30,34,39,41-42,44,47-48,50,59,61-63,66-68,71-73,77-96,98,103,106-110
+apps/web/components/conversation-view.tsx
+  s_11106e1ec74c31::t_c51839cb9a175e 8
+  s_11106e1ec74c31::t_eb2b98748e2d6a 101-111
+apps/web/components/header.tsx
+  s_11106e1ec74c31::t_c8b1c26dc42e21 77-78,85,89-102
+apps/web/components/mobile-bottom-nav.tsx
+  s_11106e1ec74c31::t_312d437c013694 97-112
+  s_11106e1ec74c31::t_d08d6a7ad3fb0c 7,9-10,13-20,28-29,34-35
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "635eee1fa97ebad651b4e9f67b52552a273453b6",
+  "prompts": {},
+  "sessions": {
+    "s_11106e1ec74c31": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "30dbd06b-d401-40e9-a3c1-6dee25cb5a57",
+        "model": "us.anthropic.claude-opus-4-7"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
