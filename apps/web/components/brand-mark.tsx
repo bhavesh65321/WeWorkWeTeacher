@@ -2,9 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 export function BrandMark({ size = "default" }: { size?: "default" | "sm" | "lg" }) {
-  const heights = { sm: 28, default: 36, lg: 48 } as const;
+  // logo.png is ~2.3:1 after trim; keep height dominant for header presence
+  const heights = { sm: 36, default: 44, lg: 56 } as const;
   const height = heights[size];
-  const width = Math.round(height * (600 / 258));
+  const width = Math.round(height * 2.35);
 
   return (
     <Link href="/" className="inline-flex shrink-0 items-center" aria-label="gurumates home">
@@ -13,7 +14,7 @@ export function BrandMark({ size = "default" }: { size?: "default" | "sm" | "lg"
         alt="gurumates"
         width={width}
         height={height}
-        className="h-8 w-auto sm:h-9"
+        className="h-10 w-auto sm:h-11"
         priority
       />
     </Link>
@@ -25,9 +26,9 @@ export function BrandMarkIcon({ className }: { className?: string }) {
     <Image
       src="/brand/mark.png"
       alt="gurumates"
-      width={40}
-      height={40}
-      className={className ?? "h-9 w-9"}
+      width={48}
+      height={48}
+      className={className ?? "h-10 w-10"}
     />
   );
 }

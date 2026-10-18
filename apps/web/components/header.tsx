@@ -33,7 +33,7 @@ export function Header({ me }: { me: Me | null }) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur-lg">
-      <div className="mx-auto flex h-14 max-w-7xl items-center justify-between gap-2 px-4 sm:h-16 sm:gap-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 px-4 sm:h-[4.25rem] sm:gap-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4 sm:gap-8">
           <BrandMark />
           <nav className="hidden items-center gap-1 lg:flex">
