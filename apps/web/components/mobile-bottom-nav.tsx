@@ -4,12 +4,20 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { Me } from "@/lib/api";
 
-const navItems = [
+const studentNavItems = [
   { href: "/dashboard", label: "Home", icon: HomeIcon },
-  { href: "/jobs", label: "Jobs", icon: BriefcaseIcon },
+  { href: "/jobs/mine", label: "My Posts", icon: BriefcaseIcon },
+  { href: "/tutors", label: "Tutors", icon: SearchIcon },
   { href: "/inbox", label: "Chat", icon: ChatIcon },
   { href: "/wallet", label: "Wallet", icon: WalletIcon },
-  { href: "/settings", label: "More", icon: MenuIcon },
+];
+
+const tutorNavItems = [
+  { href: "/dashboard", label: "Home", icon: HomeIcon },
+  { href: "/jobs?matched=1", label: "Jobs", icon: BriefcaseIcon },
+  { href: "/inbox", label: "Chat", icon: ChatIcon },
+  { href: "/wallet", label: "Wallet", icon: WalletIcon },
+  { href: "/tutors/edit", label: "Profile", icon: UserIcon },
 ];
 
 export function MobileBottomNav({ me }: { me: Me | null }) {
@@ -17,11 +25,14 @@ export function MobileBottomNav({ me }: { me: Me | null }) {
   
   if (!me) return null;
 
+  const navItems = me.activeRole === "TUTOR" ? tutorNavItems : studentNavItems;
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur-lg lg:hidden safe-bottom">
       <div className="mx-auto flex max-w-lg items-center justify-around">
         {navItems.map((item) => {
-          const isActive = path === item.href || (item.href !== "/" && path.startsWith(item.href));
+          const basePath = item.href.split("?")[0];
+          const isActive = path === basePath || (basePath !== "/" && path.startsWith(basePath));
           const Icon = item.icon;
           return (
             <Link
@@ -80,6 +91,22 @@ function MenuIcon({ active }: { active: boolean }) {
   return (
     <svg className={`h-6 w-6 ${active ? "text-[rgb(var(--wtws-blue))]" : "text-slate-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.5 : 2} d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
+function SearchIcon({ active }: { active: boolean }) {
+  return (
+    <svg className={`h-6 w-6 ${active ? "text-[rgb(var(--wtws-blue))]" : "text-slate-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.5 : 2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    </svg>
+  );
+}
+
+function UserIcon({ active }: { active: boolean }) {
+  return (
+    <svg className={`h-6 w-6 ${active ? "text-[rgb(var(--wtws-blue))]" : "text-slate-400"}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={active ? 2.5 : 2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
     </svg>
   );
 }

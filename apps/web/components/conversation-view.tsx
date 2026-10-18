@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button, Input, Textarea } from "@wtws/ui";
 import { apiClient } from "@/lib/client";
 import { formatMoney } from "@/lib/money";
+import { ContactUnlockPanel } from "./contact-unlock-panel";
 
 type Msg = { id: string; senderId: string; body: string; createdAt: string; mine: boolean };
 type Booking = {
@@ -28,10 +29,6 @@ type Thread = {
   messages: Msg[];
   bookings: Booking[];
 };
-
-function whatsappHref(phone: string, text: string) {
-  return `https://wa.me/${phone.replace(/\D/g, "")}?text=${encodeURIComponent(text)}`;
-}
 
 export function ConversationView({ id }: { id: string }) {
   const router = useRouter();
@@ -101,51 +98,17 @@ export function ConversationView({ id }: { id: string }) {
       <div className="flex min-w-0 flex-col">
         <h1 className="break-words text-xl font-bold sm:text-2xl">{thread.otherName}</h1>
         <p className="break-words text-sm text-[rgb(var(--muted-foreground))]">{thread.jobTitle}</p>
-        {!thread.contactUnlocked ? (
-          <div className="mt-2 rounded-lg bg-[rgb(var(--muted))] px-3 py-2">
-            <p className="text-sm">Phone and WhatsApp stay hidden until you unlock contact.</p>
-            <Button
-              className="mt-2"
-              type="button"
-              onClick={unlockContact}
-              disabled={unlocking}
-            >
-              {unlocking ? "Unlocking…" : "Unlock contact (10 coins)"}
-            </Button>
-          </div>
-        ) : (
-          <div className="mt-3 rounded-2xl border border-[rgb(var(--border))] p-3 sm:p-4">
-            <p className="text-sm font-semibold text-[rgb(var(--wtws-teal))]">Contact unlocked</p>
-            {thread.otherPhone ? (
-              <>
-                <p className="mt-1 break-all text-base font-semibold tabular-nums sm:text-lg">{thread.otherPhone}</p>
-                <div className="mt-3 flex flex-col gap-2 sm:flex-row">
-                  <a
-                    className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg bg-[#25D366] px-4 text-sm font-semibold text-white hover:bg-[#1ebe57] sm:flex-none"
-                    href={whatsappHref(
-                      thread.otherPhone,
-                      `Hi ${thread.otherName}, this is about ${thread.jobTitle} on WTWS.`,
-                    )}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    WhatsApp
-                  </a>
-                  <a
-                    className="inline-flex min-h-11 flex-1 items-center justify-center rounded-lg border border-[rgb(var(--border))] bg-white px-4 text-sm font-semibold hover:bg-[rgb(var(--muted))] sm:flex-none"
-                    href={`tel:${thread.otherPhone}`}
-                  >
-                    Call
-                  </a>
-                </div>
-              </>
-            ) : (
-              <p className="mt-1 text-sm text-[rgb(var(--muted-foreground))]">
-                They have not added a phone yet. Chat here until they do.
-              </p>
-            )}
-          </div>
-        )}
+        <div className="mt-3">
+          <ContactUnlockPanel
+            contactUnlocked={thread.contactUnlocked}
+            unlockBlockers={thread.unlockBlockers ?? []}
+            otherName={thread.otherName}
+            otherPhone={thread.otherPhone}
+            jobTitle={thread.jobTitle}
+            unlocking={unlocking}
+            onUnlock={unlockContact}
+          />
+        </div>
         <div className="mt-4 flex min-w-0 flex-1 flex-col gap-2 sm:mt-6">
           {thread.messages.map((m) => (
             <div key={m.id} className={`flex min-w-0 ${m.mine ? "justify-end" : "justify-start"}`}>

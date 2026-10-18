@@ -74,24 +74,33 @@ function NavLink({ href, children, badge }: { href: string; children: React.Reac
 function PublicNav() {
   return (
     <>
-      <NavLink href="/dashboard">Dashboard</NavLink>
-      <NavLink href="/jobs" badge="New">Jobs</NavLink>
-      <NavLink href="/tutors">Find Tutors</NavLink>
+      <NavLink href="/tutors">Find tutors</NavLink>
+      <NavLink href="/jobs/new">Post a job</NavLink>
       <NavLink href="/how-it-works">How it works</NavLink>
     </>
   );
 }
 
 function AppNav({ me }: { me: Me }) {
+  const isTutor = me.activeRole === "TUTOR";
   return (
     <>
       <NavLink href="/dashboard">Dashboard</NavLink>
-      <NavLink href="/jobs" badge="New">Jobs</NavLink>
-      <NavLink href="/wallet">Wallet</NavLink>
-      {me.roles.includes("TUTOR") && me.activeRole === "TUTOR" && (
-        <NavLink href="/tutors/edit">Edit Profile</NavLink>
+      {isTutor ? (
+        <>
+          <NavLink href="/jobs?matched=1">Jobs</NavLink>
+          <NavLink href="/inbox">Inbox</NavLink>
+          <NavLink href="/wallet">Wallet</NavLink>
+          <NavLink href="/tutors/edit">Profile</NavLink>
+        </>
+      ) : (
+        <>
+          <NavLink href="/jobs/mine">My posts</NavLink>
+          <NavLink href="/tutors">Find tutors</NavLink>
+          <NavLink href="/inbox">Inbox</NavLink>
+          <NavLink href="/wallet">Wallet</NavLink>
+        </>
       )}
-      <NavLink href="/inbox">Messages</NavLink>
     </>
   );
 }

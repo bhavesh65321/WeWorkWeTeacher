@@ -10,9 +10,11 @@ export default async function DashboardPage() {
   const me = await getMe();
   if (!me) redirect("/login");
 
-  const jobs = me.activeRole === "STUDENT" ? await apiGet<JobCard[]>("/jobs/mine").catch(() => []) : [];
-  const tutor =
-    me.activeRole === "TUTOR" ? await apiGet<TutorCard>("/tutors/me").catch(() => null) : null;
+  const [jobs, matchedJobs, tutor] = await Promise.all([
+    me.activeRole === "STUDENT" ? apiGet<JobCard[]>("/jobs/mine").catch(() => []) : Promise.resolve([]),
+    me.activeRole === "TUTOR" ? apiGet<JobCard[]>("/jobs?matched=1").catch(() => []) : Promise.resolve([]),
+    me.activeRole === "TUTOR" ? apiGet<TutorCard>("/tutors/me").catch(() => null) : Promise.resolve(null),
+  ]);
 
   return (
     <div>
@@ -26,6 +28,7 @@ export default async function DashboardPage() {
           reviewCount={tutor?.reviewCount ?? 0}
           referralCode={me.referralCode}
           isPremium={me.isPremium}
+          matchedJobs={matchedJobs}
         />
       ) : (
         <StudentDashboard

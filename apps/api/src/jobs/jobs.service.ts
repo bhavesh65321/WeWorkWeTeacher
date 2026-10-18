@@ -5,6 +5,7 @@ import { CreateJobDto } from "./dto/create-job.dto";
 import { asStringArray, jsonList } from "../json-list";
 import { EARLY_ACCESS_HOURS, MAX_JOBS_PER_DAY, currentCoinPrice, containsContactLeak, isJobMatch } from "../marketplace-rules";
 import { NotificationsService } from "../notifications/notifications.service";
+import { EmailService } from "../notifications/email.service";
 import { track } from "../analytics";
 
 @Injectable()
@@ -12,6 +13,7 @@ export class JobsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
+    private readonly email: EmailService,
   ) {}
 
   async list(
@@ -207,7 +209,7 @@ export class JobsService {
   private async notifyMatchingTutors(jobId: string, title: string, subject: string, studentId: string) {
     const job = await this.prisma.job.findUnique({
       where: { id: jobId },
-      select: { subject: true, languages: true, modes: true },
+      select: { id: true, title: true, subject: true, city: true, languages: true, modes: true },
     });
     if (!job) return;
 
@@ -240,8 +242,9 @@ export class JobsService {
 
     if (!matchedTutors.length) return;
 
-    // Create in-app notifications (idempotent)
     for (const { tutor } of matchedTutors) {
+      if (tutor.user.blockedAt) continue;
+
       const existing = await this.prisma.notification.findFirst({
         where: {
           userId: tutor.userId,
@@ -258,6 +261,16 @@ export class JobsService {
             href: `/jobs/${jobId}`,
           },
         });
+
+        this.email
+          .sendMatchNotification(tutor.userId, tutor.user.email, {
+            id: job.id,
+            title: job.title,
+            subject: job.subject,
+            city: job.city,
+            modes: asStringArray(job.modes),
+          })
+          .catch(() => undefined);
       }
     }
 
