@@ -2,10 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 
 export function BrandMark({ size = "default" }: { size?: "default" | "sm" | "lg" }) {
-  // logo.png is ~2.3:1 after trim; keep height dominant for header presence
+  // trimmed logo.png is ~3.15:1 (277x88)
   const heights = { sm: 36, default: 44, lg: 56 } as const;
   const height = heights[size];
-  const width = Math.round(height * 2.35);
+  const width = Math.round(height * (277 / 88));
 
   return (
     <Link href="/" className="inline-flex shrink-0 items-center" aria-label="gurumates home">
