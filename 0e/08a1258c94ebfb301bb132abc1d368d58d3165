@@ -1,0 +1,81 @@
+apps/web/app/support/page.tsx
+  s_11106e1ec74c31::t_e76f3c649207be 1-2,4-8,11
+apps/web/app/layout.tsx
+  s_11106e1ec74c31::t_c7ca06403c29c8 14-15,17,19,22-42,45-49,51-93,102,107-123,126-131
+apps/web/app/tutors/loading.tsx
+  s_11106e1ec74c31::t_9806a7ad9e8793 1-37
+apps/web/app/robots.ts
+  s_11106e1ec74c31::t_af2ceaf8194fb0 1-5,7-28
+apps/web/app/loading.tsx
+  s_11106e1ec74c31::t_b54458e8efabf2 1-32
+apps/web/app/opengraph-image.tsx
+  s_11106e1ec74c31::t_498188d46b752d 1-91
+apps/web/app/not-found.tsx
+  s_11106e1ec74c31::t_2db2e9b863a596 1-42
+apps/web/app/terms/page.tsx
+  s_11106e1ec74c31::t_5afd73c7da17f0 1,4-8
+apps/web/app/tutors/page.tsx
+  s_11106e1ec74c31::t_a32e8f1214c73d 1,9-18
+apps/web/app/login/page.tsx
+  s_11106e1ec74c31::t_c7a1eba06be657 1,7-12
+apps/web/app/jobs/[id]/page.tsx
+  s_11106e1ec74c31::t_4f905856e05413 1,36-55
+  s_11106e1ec74c31::t_1d4c1c0e6d73c9 56
+apps/web/app/tutors/[slug]/page.tsx
+  s_11106e1ec74c31::t_19bc59ec376093 1,27-29,33-52
+apps/web/app/subjects/[subject]/page.tsx
+  s_11106e1ec74c31::t_728eb8bcbc97db 1-2,6-8,11-31,39-56,59-67,69-71,77-87
+apps/web/app/global-error.tsx
+  s_11106e1ec74c31::t_5fa986a4be7ab0 1-51
+apps/web/app/locations/[city]/loading.tsx
+  s_11106e1ec74c31::t_a997bfb13fd697 1-14
+apps/web/app/error.tsx
+  s_11106e1ec74c31::t_0fee08b3cd5288 1-52
+apps/web/app/page.tsx
+  s_11106e1ec74c31::t_9f709bea6a4e82 1,8-13
+  s_11106e1ec74c31::t_7cfc73f7e3b080 14
+apps/web/app/locations/[city]/page.tsx
+  s_11106e1ec74c31::t_1aedc1fa4ebe8b 1-2,6-8,10-30,38-59,62-70,72-74,80-90
+apps/web/app/sitemap.ts
+  s_11106e1ec74c31::t_92ecf11b27c925 1-53,55-84
+apps/web/app/privacy/page.tsx
+  s_11106e1ec74c31::t_25e865bbb6658d 1,4-8
+apps/web/app/jobs/page.tsx
+  s_11106e1ec74c31::t_819f30579aec7f 1,10-19
+apps/web/components/google-button.tsx
+  s_11106e1ec74c31::t_cc2050fae86b33 7-29,51,53
+apps/web/app/tutors/[slug]/loading.tsx
+  s_11106e1ec74c31::t_7deb201010e968 1-47
+apps/web/app/register/page.tsx
+  s_11106e1ec74c31::t_102738a434918b 1,7-12
+apps/web/app/jobs/[id]/loading.tsx
+  s_11106e1ec74c31::t_b94567e4e7efb6 1-33
+apps/web/app/dashboard/loading.tsx
+  s_11106e1ec74c31::t_d96a2d271380b6 1-35
+apps/web/app/refunds/page.tsx
+  s_11106e1ec74c31::t_996f209ad5c413 1,4-8
+apps/web/app/support/support-form.tsx
+  s_11106e1ec74c31::t_9d9c83b4fe7981 1-173
+apps/web/app/jobs/loading.tsx
+  s_11106e1ec74c31::t_8ed627f87208e8 1-37
+apps/web/app/how-it-works/page.tsx
+  s_11106e1ec74c31::t_3b05a5bbbd73d2 1,4-13
+apps/web/app/subjects/[subject]/loading.tsx
+  s_11106e1ec74c31::t_3d3a431afd124c 1-14
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "0e08a1258c94ebfb301bb132abc1d368d58d3165",
+  "prompts": {},
+  "sessions": {
+    "s_11106e1ec74c31": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "30dbd06b-d401-40e9-a3c1-6dee25cb5a57",
+        "model": "us.anthropic.claude-opus-4-5-20251101-v1:0"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
