@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { listTutors } from "@/lib/api";
@@ -5,7 +6,16 @@ import { TutorCardView } from "@/components/tutor-card";
 import { SearchBar } from "@/components/search-bar";
 import { SearchTabs } from "@/components/search-tabs";
 
-export const metadata = { title: "Find tutors" };
+export const metadata: Metadata = {
+  title: "Find Tutors — Online & Home Tuition for Any Subject",
+  description:
+    "Browse verified tutors for academics, coding, music, languages & more. Filter by subject, city, or teaching mode. Message tutors safely on gurumates.",
+  alternates: { canonical: "/tutors" },
+  openGraph: {
+    title: "Find Tutors — Online & Home Tuition",
+    description: "Browse verified tutors for any subject. Filter by city or teaching mode.",
+  },
+};
 
 export default async function TutorsPage({
   searchParams,

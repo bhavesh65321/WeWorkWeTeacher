@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal-page";
 
-export const metadata = { title: "Privacy" };
+export const metadata: Metadata = {
+  title: "Privacy Policy — gurumates",
+  description: "Learn how gurumates protects your privacy. We explain what data we collect and how we use it.",
+  alternates: { canonical: "/privacy" },
+};
 
 export default function PrivacyPage() {
   return (

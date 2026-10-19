@@ -1,11 +1,30 @@
-export default function robots() {
-  const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import type { MetadataRoute } from "next";
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gurumates.com";
+
+export default function robots(): MetadataRoute.Robots {
   return {
-    rules: {
-      userAgent: "*",
-      allow: "/",
-      disallow: ["/inbox", "/wallet", "/admin", "/dashboard", "/onboarding"],
-    },
-    sitemap: `${base}/sitemap.xml`,
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+        disallow: [
+          "/api/",
+          "/auth/",
+          "/inbox/",
+          "/dashboard",
+          "/settings",
+          "/wallet",
+          "/notifications",
+          "/admin",
+          "/onboarding",
+          "/verify",
+          "/tutors/edit",
+          "/jobs/mine",
+          "/jobs/*/edit",
+        ],
+      },
+    ],
+    sitemap: `${SITE_URL}/sitemap.xml`,
   };
 }

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import Link from "next/link";
 import { listJobs, getMe } from "@/lib/api";
@@ -6,7 +7,16 @@ import { SearchTabs } from "@/components/search-tabs";
 import { SearchBar } from "@/components/search-bar";
 import { MatchJobsToggle } from "@/components/match-jobs-toggle";
 
-export const metadata = { title: "Tutor jobs" };
+export const metadata: Metadata = {
+  title: "Tutor Jobs — Find Students Looking for Tutors",
+  description:
+    "Browse tutor job postings from students. Apply with coins, chat safely, and connect when ready. New jobs posted daily on gurumates.",
+  alternates: { canonical: "/jobs" },
+  openGraph: {
+    title: "Tutor Jobs — Find Students Looking for Tutors",
+    description: "Browse tutor job postings. Apply with coins, chat safely, connect when ready.",
+  },
+};
 
 export default async function JobsPage({
   searchParams,

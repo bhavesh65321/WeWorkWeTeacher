@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@wtws/ui";
@@ -31,6 +32,27 @@ type JobDetail = JobCard & {
   languages?: string[];
   employmentType?: string;
 };
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  try {
+    const job = await getJob(id);
+    const title = `${job.subject} Tutor Needed${job.city ? ` in ${job.city}` : ""} — Tutor Job`;
+    const description = job.description
+      ? job.description.slice(0, 150) + (job.description.length > 150 ? "..." : "")
+      : `Looking for a ${job.subject} tutor. Apply on gurumates.`;
+
+    return {
+      title,
+      description,
+      alternates: { canonical: `/jobs/${id}` },
+      openGraph: { title, description },
+      robots: { index: job.status === "OPEN", follow: true },
+    };
+  } catch {
+    return { title: "Tutor Job" };
+  }
+}
 
 export default async function JobDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

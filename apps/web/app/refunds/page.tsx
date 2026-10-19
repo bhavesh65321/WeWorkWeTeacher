@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal-page";
 
-export const metadata = { title: "Refunds" };
+export const metadata: Metadata = {
+  title: "Refund Policy — gurumates",
+  description: "Understand our refund policy for coin purchases and premium upgrades on gurumates.",
+  alternates: { canonical: "/refunds" },
+};
 
 export default function RefundsPage() {
   return (

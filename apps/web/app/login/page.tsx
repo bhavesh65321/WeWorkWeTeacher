@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getMe } from "@/lib/api";
 import { LoginForm } from "./login-form";
 import { BrandMarkIcon } from "@/components/brand-mark";
 
-export const metadata = { title: "Log in" };
+export const metadata: Metadata = {
+  title: "Log in — gurumates",
+  description: "Sign in to gurumates to find tutors, post requirements, or manage your tutor profile.",
+  alternates: { canonical: "/login" },
+  robots: { index: true, follow: true },
+};
 
 export default async function LoginPage() {
   const me = await getMe().catch(() => null);

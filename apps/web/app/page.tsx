@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { listTutors, listJobs, getMe, getMeta } from "@/lib/api";
 import { HomeHeroSearch } from "@/components/home-hero-search";
 import { HomeFeatured } from "@/components/home-featured";
 import { HomeSkills } from "@/components/home-skills";
+
+export const metadata: Metadata = {
+  title: "gurumates — Find Trusted Tutors Near You | Online & Home Tuition",
+  description:
+    "Find verified tutors for any subject — academics, coding, music, languages & more. Post your requirement free, chat safely, unlock contact when ready. Join 1000+ students & tutors.",
+  alternates: { canonical: "/" },
+};
 
 export default async function HomePage() {
   const [tutors, jobs, me, meta] = await Promise.all([

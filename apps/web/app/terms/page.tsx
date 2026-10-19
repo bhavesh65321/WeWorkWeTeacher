@@ -1,6 +1,11 @@
+import type { Metadata } from "next";
 import { LegalPage } from "@/components/legal-page";
 
-export const metadata = { title: "Terms of use" };
+export const metadata: Metadata = {
+  title: "Terms of Use — gurumates",
+  description: "Read the terms of use for gurumates tutoring marketplace. Learn about our policies for students and tutors.",
+  alternates: { canonical: "/terms" },
+};
 
 export default function TermsPage() {
   return (

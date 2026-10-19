@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getMe } from "@/lib/api";
 import { RegisterForm } from "./register-form";
 import { BrandMarkIcon } from "@/components/brand-mark";
 
-export const metadata = { title: "Sign up" };
+export const metadata: Metadata = {
+  title: "Sign Up Free — Join gurumates",
+  description: "Create a free account on gurumates. Find tutors for any subject or start teaching and earn. Join 1000+ students and tutors.",
+  alternates: { canonical: "/register" },
+  robots: { index: true, follow: true },
+};
 
 export default async function RegisterPage() {
   const me = await getMe().catch(() => null);

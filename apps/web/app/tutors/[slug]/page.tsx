@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Badge } from "@wtws/ui";
@@ -23,11 +24,32 @@ type TutorDetail = Awaited<ReturnType<typeof getTutor>> & {
   reviews?: TutorReview[];
 };
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://gurumates.com";
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   try {
     const tutor = await getTutor(slug);
-    return { title: `${tutor.name} · ${tutor.subjects.join(", ") || "Tutor"}` };
+    const subjects = tutor.subjects.slice(0, 3).join(", ") || "Tutor";
+    const title = `${tutor.name} — ${subjects} Tutor`;
+    const description = tutor.headline
+      ? `${tutor.headline}. ${tutor.city ? `Based in ${tutor.city}.` : "Online tutor."} Book lessons on gurumates.`
+      : `${subjects} tutor${tutor.city ? ` in ${tutor.city}` : ""}. Book lessons on gurumates.`;
+
+    return {
+      title,
+      description,
+      alternates: { canonical: `/tutors/${slug}` },
+      openGraph: {
+        title,
+        description,
+        type: "profile",
+        url: `${SITE_URL}/tutors/${slug}`,
+      },
+      other: {
+        "profile:first_name": tutor.name.split(" ")[0],
+      },
+    };
   } catch {
     return { title: "Tutor" };
   }

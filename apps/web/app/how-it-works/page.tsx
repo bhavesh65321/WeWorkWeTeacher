@@ -1,6 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
-export const metadata = { title: "How it works" };
+export const metadata: Metadata = {
+  title: "How gurumates Works — Find Tutors, Post Jobs, Connect Safely",
+  description:
+    "Learn how gurumates connects students with tutors. Post requirements free, browse tutors, chat safely, and unlock contact when ready. Simple, safe, effective.",
+  alternates: { canonical: "/how-it-works" },
+  openGraph: {
+    title: "How gurumates Works",
+    description: "Learn how gurumates connects students with tutors safely and effectively.",
+  },
+};
 
 export default function HowItWorksPage() {
   return (
