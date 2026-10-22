@@ -30,9 +30,11 @@ function GoogleIcon() {
 export function GoogleButton({
   label = "Continue with Google",
   next,
+  asTutor = false,
 }: {
   label?: string;
   next?: string | null;
+  asTutor?: boolean;
 }) {
   const [enabled, setEnabled] = useState<boolean | null>(null);
 
@@ -44,10 +46,15 @@ export function GoogleButton({
 
   if (!enabled) return null;
 
+  const params = new URLSearchParams();
+  if (next) params.set("next", next);
+  if (asTutor) params.set("as", "tutor");
+  const query = params.toString();
+
   return (
     <>
       <Link
-        href={next ? `/auth/google?next=${encodeURIComponent(next)}` : "/auth/google"}
+        href={query ? `/auth/google?${query}` : "/auth/google"}
         className="flex min-h-11 w-full items-center justify-center gap-3 rounded-xl border border-[rgb(var(--border))] bg-white text-sm font-semibold hover:bg-[rgb(var(--muted))]"
       >
         <GoogleIcon />

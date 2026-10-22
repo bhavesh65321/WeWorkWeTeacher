@@ -66,7 +66,7 @@ export function RegisterForm() {
         Continue with Google, or create an account with email. We send a one-time code to verify new email signups.
       </p>
       <div className="mt-6">
-        <GoogleButton label="Continue with Google" next={next} />
+        <GoogleButton label="Continue with Google" next={next} asTutor={asTutor} />
       </div>
       <form onSubmit={onSubmit} className="mt-6 space-y-4">
         <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1 text-sm font-semibold">

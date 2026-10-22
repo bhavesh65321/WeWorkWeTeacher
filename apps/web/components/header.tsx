@@ -37,7 +37,7 @@ export function Header({ me }: { me: Me | null }) {
         <div className="flex items-center gap-4 sm:gap-8">
           <BrandMark />
           <nav className="hidden items-center gap-1 lg:flex">
-            {app && me ? <AppNav me={me} /> : <PublicNav />}
+            {me ? <AppNav me={me} /> : <PublicNav />}
           </nav>
         </div>
         <div className="flex items-center gap-1.5 sm:gap-2">

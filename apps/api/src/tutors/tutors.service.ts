@@ -3,6 +3,8 @@ import { Prisma, TeachingMode } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { asSkills, asStringArray, jsonList, jsonSkills } from "../json-list";
 import { track } from "../analytics";
+import { skillError } from "../content-rules";
+import { maskContact } from "../marketplace-rules";
 
 export type TutorQuery = {
   q?: string;
@@ -28,7 +30,8 @@ export class TutorsService {
     const tutors = await this.prisma.tutorProfile.findMany({
       where,
       include: { user: true },
-      take: 80,
+      orderBy: [{ ratingAvg: "desc" }, { reviewCount: "desc" }],
+      take: 500,
     });
 
     const q = query.q?.trim().toLowerCase();
@@ -164,8 +167,8 @@ export class TutorsService {
     const updated = await this.prisma.tutorProfile.update({
       where: { userId },
       data: {
-        headline: data.headline,
-        bio: data.bio,
+        headline: maskOptional(data.headline),
+        bio: maskOptional(data.bio),
         hourlyRateMinor: data.rateType === "FREE" ? 0 : data.hourlyRateMinor,
         hourlyRateMaxMinor: data.rateType === "FREE" ? null : data.hourlyRateMaxMinor,
         currency: data.currency,
@@ -178,9 +181,9 @@ export class TutorsService {
         modes: data.modes ? jsonList(data.modes) : undefined,
         levels: data.levels ? jsonList(data.levels) : undefined,
         languages: languages ? jsonList(languages) : undefined,
-        teachingApproach: data.teachingApproach,
-        experience: data.experience,
-        education: data.education,
+        teachingApproach: maskOptional(data.teachingApproach),
+        experience: maskOptional(data.experience),
+        education: maskOptional(data.education),
         freeTrialMinutes: data.freeTrialMinutes,
         yearsTeaching: data.yearsTeaching,
         yearsOnline: data.yearsOnline,
@@ -226,7 +229,7 @@ export class TutorsService {
     const profile = await this.prisma.tutorProfile.findUnique({ where: { userId } });
     if (!profile) throw new NotFoundException("Enable tutor role first");
     const ext = file.originalname.toLowerCase().match(/\.(jpe?g|png|webp|gif)$/)?.[0];
-    if (!ext || !file.mimetype.startsWith("image/") || file.size > 2_000_000) {
+    if (!ext || !file.mimetype.startsWith("image/") || file.size > 2_000_000 || !hasImageSignature(file.buffer)) {
       throw new BadRequestException("Upload a JPG, PNG, or WebP image under 2 MB");
     }
     const { mkdir, writeFile } = await import("fs/promises");
@@ -317,12 +320,29 @@ export class TutorsService {
   }
 }
 
+const IMAGE_SIGNATURES: number[][] = [
+  [0x89, 0x50, 0x4e, 0x47],
+  [0xff, 0xd8, 0xff],
+  [0x47, 0x49, 0x46, 0x38],
+  [0x52, 0x49, 0x46, 0x46],
+];
+
+function hasImageSignature(buffer: Buffer) {
+  return IMAGE_SIGNATURES.some((signature) => signature.every((byte, index) => buffer[index] === byte));
+}
+
+function maskOptional(text: string | undefined) {
+  return text === undefined ? undefined : maskContact(text);
+}
+
 function cleanSkills(raw: { name: string; level: string }[]) {
   const out: { name: string; level: string }[] = [];
   const seen = new Set<string>();
   for (const item of raw) {
     const name = item.name.trim().replace(/\s+/g, " ");
     if (name.length < 2 || name.length > 60) continue;
+    const invalid = skillError(name);
+    if (invalid) throw new BadRequestException(invalid);
     const key = name.toLowerCase();
     if (seen.has(key)) continue;
     seen.add(key);

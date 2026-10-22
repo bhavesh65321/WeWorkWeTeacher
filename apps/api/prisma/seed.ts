@@ -339,7 +339,7 @@ async function main() {
       currency: "USD",
       budgetMin: 2500,
       budgetMax: 4000,
-      whenNeeded: "WITHIN_WEEK",
+      whenNeeded: "THIS_WEEK",
       frequency: "WEEKLY",
     },
     {
@@ -355,8 +355,8 @@ async function main() {
       currency: "INR",
       budgetMin: 2000,
       budgetMax: 3000,
-      whenNeeded: "URGENT",
-      frequency: "ONE_TIME",
+      whenNeeded: "ASAP",
+      frequency: "ONCE",
     },
     {
       studentEmail: "emma.student@gurumates.dev",
@@ -371,8 +371,8 @@ async function main() {
       currency: "GBP",
       budgetMin: 3500,
       budgetMax: 5000,
-      whenNeeded: "WITHIN_WEEK",
-      frequency: "TWICE_WEEKLY",
+      whenNeeded: "THIS_WEEK",
+      frequency: "WEEKLY",
     },
     {
       studentEmail: "alex.student@gurumates.dev",
@@ -387,8 +387,8 @@ async function main() {
       currency: "USD",
       budgetMin: 3000,
       budgetMax: 4500,
-      whenNeeded: "WITHIN_WEEK",
-      frequency: "TWICE_WEEKLY",
+      whenNeeded: "THIS_WEEK",
+      frequency: "WEEKLY",
     },
     {
       studentEmail: "raj.student@gurumates.dev",
@@ -404,7 +404,7 @@ async function main() {
       budgetMin: 500,
       budgetMax: 1000,
       whenNeeded: "FLEXIBLE",
-      frequency: "THRICE_WEEKLY",
+      frequency: "DAILY",
     },
     {
       studentEmail: "alex.student@gurumates.dev",
@@ -451,8 +451,8 @@ async function main() {
       currency: "INR",
       budgetMin: 1500,
       budgetMax: 2500,
-      whenNeeded: "URGENT",
-      frequency: "ONE_TIME",
+      whenNeeded: "ASAP",
+      frequency: "ONCE",
     },
   ];
 

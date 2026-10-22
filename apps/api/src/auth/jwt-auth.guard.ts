@@ -23,7 +23,9 @@ export class JwtAuthGuard implements CanActivate {
         where: { id: payload.sub },
       });
 
-      if (user?.blockedAt) {
+      if (!user || user.deletedAt) throw new UnauthorizedException();
+
+      if (user.blockedAt) {
         throw new ForbiddenException("Your account has been blocked. Contact support.");
       }
 

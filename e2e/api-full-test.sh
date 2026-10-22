@@ -73,13 +73,18 @@ echo -e "\n📋 12. Post Job"
 R=$(curl -s -X POST "$API/jobs" -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{
   "type": "TUTORING",
   "title": "Need Math tutor for calculus help",
-  "description": "I need help with calculus and differential equations for my college exams.",
+  "description": "I need help with calculus and differential equations for my college exams this semester.",
   "subject": "Mathematics",
   "level": "Undergraduate",
   "modes": ["ONLINE"],
   "visibility": "PUBLIC",
-  "city": "Mumbai",
-  "country": "India"
+  "city": "Andheri, Mumbai, Maharashtra",
+  "country": "India",
+  "languages": ["English", "Hindi"],
+  "currency": "INR",
+  "budgetType": "HOURLY",
+  "budgetMin": 50000,
+  "budgetMax": 100000
 }')
 JOB_ID=$(echo "$R" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
 [ -n "$JOB_ID" ] && pass "Post job (ID: $JOB_ID)" || fail "Post job" "$R"

@@ -1,4 +1,5 @@
-import { IsOptional, IsString, MinLength } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -16,7 +17,9 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString()
+  @Transform(({ value }) => (typeof value === "string" ? value.trim() : value))
   @MinLength(2)
+  @MaxLength(80)
   name?: string;
 
   @IsOptional()

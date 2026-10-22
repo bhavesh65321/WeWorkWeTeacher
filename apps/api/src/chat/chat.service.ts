@@ -5,6 +5,7 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { WalletService } from "../wallet/wallet.service";
 import { NotificationsService } from "../notifications/notifications.service";
@@ -51,23 +52,16 @@ export class ChatService {
     }
 
     const price = currentCoinPrice(job.createdAt, job.applyCount);
-    if (price > 0) await this.wallet.debitCoins(tutorId, price, "APPLY", `Apply to job`, jobId);
-
     const threadKey = `${job.studentId}:${tutorId}:${jobId}`;
-    const conversation = await this.prisma.conversation.create({
-      data: {
-        threadKey,
-        jobId,
-        studentId: job.studentId,
-        tutorId,
-        messages: {
-          create: {
-            senderId: tutorId,
-            body: maskContact(intro),
-          },
-        },
-      },
-    });
+    const conversation = await this.claimConversation(
+      { threadKey, jobId, studentId: job.studentId, tutorId, messages: { create: { senderId: tutorId, body: maskContact(intro) } } },
+      () => new ConflictException("Already applied"),
+    );
+    if (price > 0) {
+      await this.debitOrRelease(conversation.id, () =>
+        this.wallet.debitCoins(tutorId, price, "APPLY", `Apply to job`, jobId),
+      );
+    }
     await this.prisma.jobApply.create({
       data: {
         jobId,
@@ -100,15 +94,20 @@ export class ChatService {
     const existing = await this.prisma.conversation.findUnique({ where: { threadKey } });
     if (existing) return { conversationId: existing.id, coinsSpent: 0 };
 
-    await this.wallet.debitCoins(studentId, STUDENT_MESSAGE_COST, "MESSAGE", "Message tutor", tutorUserId);
-    const conversation = await this.prisma.conversation.create({
-      data: {
-        threadKey,
-        studentId,
-        tutorId: tutorUserId,
-        messages: { create: { senderId: studentId, body: maskContact(intro) } },
-      },
-    });
+    let conversation;
+    try {
+      conversation = await this.claimConversation(
+        { threadKey, studentId, tutorId: tutorUserId, messages: { create: { senderId: studentId, body: maskContact(intro) } } },
+        () => null,
+      );
+    } catch {
+      const raced = await this.prisma.conversation.findUnique({ where: { threadKey } });
+      if (raced) return { conversationId: raced.id, coinsSpent: 0 };
+      throw new ConflictException("Could not start conversation");
+    }
+    await this.debitOrRelease(conversation.id, () =>
+      this.wallet.debitCoins(studentId, STUDENT_MESSAGE_COST, "MESSAGE", "Message tutor", tutorUserId),
+    );
     await this.notifications.create(
       tutorUserId,
       "New student message",
@@ -117,6 +116,27 @@ export class ChatService {
     );
     track("chat_started", studentId, "STUDENT", { conversationId: conversation.id });
     return { conversationId: conversation.id, coinsSpent: STUDENT_MESSAGE_COST };
+  }
+
+  private async claimConversation(data: Prisma.ConversationUncheckedCreateInput, onDuplicate: () => Error | null) {
+    try {
+      return await this.prisma.conversation.create({ data });
+    } catch (err) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
+        const duplicate = onDuplicate();
+        if (duplicate) throw duplicate;
+      }
+      throw err;
+    }
+  }
+
+  private async debitOrRelease(conversationId: string, debit: () => Promise<unknown>) {
+    try {
+      await debit();
+    } catch (err) {
+      await this.prisma.conversation.delete({ where: { id: conversationId } }).catch(() => undefined);
+      throw err;
+    }
   }
 
   async list(userId: string) {
@@ -151,7 +171,7 @@ export class ChatService {
     }
 
     const student = await this.prisma.user.findUnique({ where: { id: t.studentId } });
-    const contactUnlocked = t.contactUnlocked && student?.emailVerifiedAt && student?.phoneVerifiedAt;
+    const contactUnlocked = Boolean(t.contactUnlocked && student?.emailVerifiedAt && student?.phoneVerifiedAt);
     const unlockBlockers: ("COINS" | "EMAIL" | "PHONE")[] = [];
     if (!t.contactUnlocked) unlockBlockers.push("COINS");
     if (!student?.emailVerifiedAt) unlockBlockers.push("EMAIL");

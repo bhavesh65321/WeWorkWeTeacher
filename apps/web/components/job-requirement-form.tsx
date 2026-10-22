@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button, Input, Select, Textarea } from "@wtws/ui";
 import {
   JOB_TYPES,
+  JOB_TYPE_LABELS,
   LEVELS,
   TEACHING_MODES,
   MODE_LABELS,
@@ -21,11 +22,13 @@ import {
   LANGUAGE_OPTIONS,
   COUNTRY_OPTIONS,
   type JobCard,
+  type JobType,
   type TeachingMode,
 } from "@wtws/shared";
 import { apiClient } from "@/lib/client";
 import type { Me } from "@/lib/api";
 import { SearchableSelect, MultiSelect } from "./ui/searchable-select";
+import { MIN_REQUIREMENT_WORDS, containsContactLeak, containsProfanity, countWords, skillError } from "@/lib/content-rules";
 
 const STEPS = ["Requirement", "Location & Preferences", "Budget & Schedule"];
 
@@ -34,6 +37,31 @@ function buildTitle(form: { title: string; subject: string; modes: TeachingMode[
   const mode = form.modes.includes("HOME") ? "Home" : form.modes.includes("ONLINE") ? "Online" : "";
   const loc = form.city ? ` in ${form.city}` : "";
   return `${form.subject} ${mode} tutor needed${loc}`.replace(/\s+/g, " ").trim();
+}
+
+const TITLE_TEMPLATES: Record<JobType, string[]> = {
+  TUTORING: ["{subject} tutor needed{loc}", "{level} {subject} tutor{loc}", "Looking for a regular {subject} teacher{loc}"],
+  ASSIGNMENT: ["{subject} assignment help needed", "Need help completing a {subject} assignment", "{level} {subject} assignment support"],
+  PROJECT: ["{subject} project help needed", "Need a mentor for my {subject} project", "{level} {subject} project guidance"],
+  EXAM_PREP: ["{subject} exam preparation tutor{loc}", "Need {subject} help for upcoming exam", "{level} {subject} exam crash course"],
+  HOMEWORK: ["{subject} homework help needed{loc}", "Daily {subject} homework support", "{level} {subject} doubt-solving tutor"],
+  GROUP_CLASS: ["{subject} group class{loc}", "Looking for a {subject} batch / group tutor", "{level} {subject} small-group classes"],
+};
+
+function titleSuggestions(form: { type: JobType; subjects: string[]; level: string; city: string }) {
+  const subject = form.subjects[0];
+  if (!subject) return [];
+  const loc = form.city.trim() ? ` in ${form.city.split(",")[0].trim()}` : "";
+  return TITLE_TEMPLATES[form.type].map((t) =>
+    t.replace("{subject}", subject).replace("{level}", form.level).replace("{loc}", loc).replace(/\s+/g, " ").trim(),
+  );
+}
+
+function formatDetectedLocation(address: Record<string, string> = {}) {
+  const area = address.suburb || address.neighbourhood || address.city_district || address.quarter;
+  const city = address.city || address.town || address.village || address.county;
+  const parts = [area, city, address.state].filter((part, i, all) => part && all.indexOf(part) === i);
+  return parts.join(", ");
 }
 
 export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; prefillSubject?: string }) {
@@ -47,10 +75,12 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
   const [attachments, setAttachments] = useState<File[]>([]);
 
   const [form, setForm] = useState({
-    type: (job?.type ?? "TUTORING") as "TUTORING" | "ASSIGNMENT",
+    type: (job?.type ?? "TUTORING") as JobType,
     title: job?.title ?? "",
     description: job?.description ?? "",
-    subjects: job?.subject ? [job.subject] : prefillSubject ? [prefillSubject] : [] as string[],
+    subjects: job?.subject
+      ? job.subject.split(",").map((s) => s.trim()).filter(Boolean)
+      : prefillSubject ? [prefillSubject] : [] as string[],
     level: job?.level ?? "High school",
     modes: (job?.modes ?? ["ONLINE"]) as TeachingMode[],
     visibility: (job?.visibility ?? "PUBLIC") as "PUBLIC" | "PRIVATE",
@@ -63,8 +93,10 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
     budgetType: job?.budgetType ?? "HOURLY",
     genderPref: job?.genderPref ?? "ANY",
     currency: job?.currency ?? "INR",
-    languages: [] as string[],
+    languages: job?.languages ?? ([] as string[]),
   });
+  const descriptionWords = countWords(form.description);
+  const titleOptions = titleSuggestions(form);
 
   useEffect(() => {
     if (job) return;
@@ -96,12 +128,14 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
           async (position) => {
             try {
               const res = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json`
+                `https://nominatim.openstreetmap.org/reverse?lat=${position.coords.latitude}&lon=${position.coords.longitude}&format=json&addressdetails=1&zoom=16&accept-language=en`
               );
               const data = await res.json();
-              const city = data.address?.city || data.address?.town || data.address?.village || "";
+              const city = formatDetectedLocation(data.address);
               const country = data.address?.country || "";
-              setForm((f) => ({ ...f, city, country }));
+              if (!city) throw new Error("empty location");
+              setForm((f) => ({ ...f, city, country: country || f.country }));
+              setError("");
             } catch {
               setError("Could not detect location. Please enter manually.");
             }
@@ -134,14 +168,46 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
     setAttachments((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function validateStep(index: number) {
+    if (index === 0) {
+      if (form.subjects.length === 0) return "Add at least one subject or skill.";
+      if (countWords(form.description) < MIN_REQUIREMENT_WORDS) {
+        return `Describe your requirement in at least ${MIN_REQUIREMENT_WORDS} words (${countWords(form.description)} so far).`;
+      }
+      if (containsProfanity(form.description) || containsProfanity(form.title)) return "Please use appropriate language.";
+    }
+    if (index === 1) {
+      if (form.modes.length === 0) return "Choose at least one meeting option.";
+      if (form.city.trim().length < 2) return "Location is required. Enter it or use Auto-detect.";
+      if (!form.country) return "Country is required.";
+      if (form.languages.length === 0) return "Select at least one communication language.";
+    }
+    if (index === 2) {
+      if (!form.currency || !form.budgetType) return "Currency and budget type are required.";
+      if (form.budgetType !== "FREE") {
+        const min = Number(form.budgetMin);
+        const max = Number(form.budgetMax);
+        if (!min || !max) return "Enter your budget range, or choose Free.";
+        if (min > max) return "Budget 'from' can't be higher than 'to'.";
+      }
+    }
+    return "";
+  }
+
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
+    const firstInvalidStep = [0, 1, 2].slice(0, step + 1).find((i) => validateStep(i));
+    if (firstInvalidStep !== undefined) {
+      setStep(firstInvalidStep);
+      setError(validateStep(firstInvalidStep));
+      return;
+    }
+    setError("");
     if (step < 2) {
       setStep(step + 1);
       return;
     }
     setLoading(true);
-    setError("");
     try {
       if (phone && phone.length >= 10) {
         await apiClient("/auth/profile", { method: "PATCH", body: JSON.stringify({ phone }) }).catch(() => undefined);
@@ -150,11 +216,11 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
         type: form.type,
         title: buildTitle({ ...form, subject: form.subjects[0] || "" }),
         description: form.description,
-        subject: form.subjects[0] || "",
+        subject: form.subjects.join(", "),
         level: form.level,
         modes: form.modes,
         visibility: form.visibility,
-        city: form.city || undefined,
+        city: form.city.trim(),
         country: form.country || undefined,
         budgetMin: form.budgetType === "FREE" ? undefined : form.budgetMin ? Math.round(Number(form.budgetMin) * 100) : undefined,
         budgetMax: form.budgetType === "FREE" ? undefined : form.budgetMax ? Math.round(Number(form.budgetMax) * 100) : undefined,
@@ -215,11 +281,11 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
               <label className="mb-1.5 block text-sm font-medium text-slate-700">I want</label>
               <Select
                 value={form.type}
-                onChange={(e) => setForm({ ...form, type: e.target.value as "TUTORING" | "ASSIGNMENT" })}
+                onChange={(e) => setForm({ ...form, type: e.target.value as JobType })}
               >
                 {JOB_TYPES.map((t) => (
                   <option key={t} value={t}>
-                    {t === "TUTORING" ? "Tutoring" : "Assignment help"}
+                    {JOB_TYPE_LABELS[t]}
                   </option>
                 ))}
               </Select>
@@ -235,6 +301,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                 onChange={(subjects) => setForm({ ...form, subjects })}
                 placeholder="Search or add subjects..."
                 allowCustom
+                validateCustom={skillError}
               />
               <p className="mt-1 text-xs text-slate-400">
                 If not in options above, add a new subject
@@ -248,11 +315,31 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 placeholder="Leave blank to auto-fill from subject and city"
               />
+              {titleOptions.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1.5">
+                  {titleOptions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      type="button"
+                      onClick={() => setForm({ ...form, title: suggestion })}
+                      className="rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3">
-              <p className="text-sm text-red-600">
-                ⚠️ Please don&apos;t share any contact details (phone, email, website) here.
+            <div
+              className={`rounded-lg border p-3 ${
+                containsContactLeak(`${form.title} ${form.description}`) ? "border-amber-300 bg-amber-50" : "border-blue-100 bg-blue-50"
+              }`}
+            >
+              <p className="text-sm text-slate-700">
+                {containsContactLeak(`${form.title} ${form.description}`)
+                  ? "🔒 Contact details detected. They will be hidden and shown to a tutor only after the tutor applies."
+                  : "🔒 Phone, email and links are hidden automatically and shown to a tutor only after they apply."}
               </p>
             </div>
 
@@ -263,11 +350,13 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
               <Textarea
                 className="min-h-32"
                 required
-                minLength={20}
                 value={form.description}
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 placeholder="Required experience, expectations, budget, time, task details."
               />
+              <p className={`mt-1 text-xs ${descriptionWords >= MIN_REQUIREMENT_WORDS ? "text-emerald-600" : "text-slate-400"}`}>
+                {descriptionWords}/{MIN_REQUIREMENT_WORDS} words minimum
+              </p>
             </div>
 
             <div>
@@ -361,7 +450,9 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
 
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-sm font-medium text-slate-700">Location</label>
+                <label className="text-sm font-medium text-slate-700">
+                  Location <span className="text-red-500">*</span>
+                </label>
                 <button
                   type="button"
                   onClick={detectLocation}
@@ -378,7 +469,8 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
               <Input
                 value={form.city}
                 onChange={(e) => setForm({ ...form, city: e.target.value })}
-                placeholder="City, region"
+                placeholder="Area, City, State"
+                required
               />
             </div>
 
@@ -394,7 +486,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
             </div>
 
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-slate-700">Communicate in (Languages)</label>
+              <label className="mb-1.5 block text-sm font-medium text-slate-700">Communicate in (Languages) <span className="text-red-500">*</span></label>
               <MultiSelect
                 options={[...LANGUAGE_OPTIONS]}
                 selected={form.languages}
@@ -444,7 +536,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Currency</label>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Currency <span className="text-red-500">*</span></label>
                 <Select
                   value={form.currency}
                   onChange={(e) => setForm({ ...form, currency: e.target.value })}
@@ -455,7 +547,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                 </Select>
               </div>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-slate-700">Budget type</label>
+                <label className="mb-1.5 block text-sm font-medium text-slate-700">Budget type <span className="text-red-500">*</span></label>
                 <Select value={form.budgetType} onChange={(e) => setForm({ ...form, budgetType: e.target.value })}>
                   {BUDGET_TYPES.map((v) => (
                     <option key={v} value={v}>
@@ -469,7 +561,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
             {form.budgetType !== "FREE" && (
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Budget from ({form.currency})</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Budget from ({form.currency}) <span className="text-red-500">*</span></label>
                   <Input
                     type="number"
                     min={0}
@@ -479,7 +571,7 @@ export function JobRequirementForm({ job, prefillSubject }: { job?: JobCard; pre
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Budget to ({form.currency})</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">Budget to ({form.currency}) <span className="text-red-500">*</span></label>
                   <Input
                     type="number"
                     min={0}

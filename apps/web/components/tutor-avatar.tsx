@@ -16,7 +16,7 @@ export function TutorAvatar({
   photoUrl?: string | null;
   className?: string;
 }) {
-  if (photoUrl) {
+  if (photoUrl && /^(https?:\/\/|\/)/i.test(photoUrl)) {
     return (
       <img
         src={photoUrl}

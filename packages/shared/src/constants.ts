@@ -4,8 +4,16 @@ export type Role = (typeof ROLES)[number];
 export const TEACHING_MODES = ["ONLINE", "HOME", "TRAVEL", "ASSIGNMENT"] as const;
 export type TeachingMode = (typeof TEACHING_MODES)[number];
 
-export const JOB_TYPES = ["TUTORING", "ASSIGNMENT"] as const;
+export const JOB_TYPES = ["TUTORING", "ASSIGNMENT", "PROJECT", "EXAM_PREP", "HOMEWORK", "GROUP_CLASS"] as const;
 export type JobType = (typeof JOB_TYPES)[number];
+export const JOB_TYPE_LABELS: Record<JobType, string> = {
+  TUTORING: "Tutoring (regular lessons)",
+  ASSIGNMENT: "Assignment help",
+  PROJECT: "Project help",
+  EXAM_PREP: "Exam preparation",
+  HOMEWORK: "Homework help",
+  GROUP_CLASS: "Group / batch class",
+};
 
 export const JOB_VISIBILITY = ["PUBLIC", "PRIVATE"] as const;
 export type JobVisibility = (typeof JOB_VISIBILITY)[number];

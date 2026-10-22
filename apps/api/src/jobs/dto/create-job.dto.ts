@@ -1,4 +1,4 @@
-import { ArrayMinSize, IsArray, IsEnum, IsInt, IsOptional, IsString, Min, MinLength } from "class-validator";
+import { ArrayMinSize, IsArray, IsEnum, IsIn, IsInt, IsOptional, IsString, Min, MinLength } from "class-validator";
 import { JobType, JobVisibility, TeachingMode } from "@prisma/client";
 
 export class CreateJobDto {
@@ -16,10 +16,10 @@ export class CreateJobDto {
   @IsEnum(TeachingMode, { each: true })
   modes: TeachingMode[];
 
-  @IsOptional()
   @IsArray()
+  @ArrayMinSize(1)
   @IsString({ each: true })
-  languages?: string[];
+  languages: string[];
 
   @IsEnum(JobVisibility)
   visibility: JobVisibility;
@@ -31,9 +31,9 @@ export class CreateJobDto {
   @IsString()
   level?: string;
 
-  @IsOptional()
   @IsString()
-  city?: string;
+  @MinLength(2)
+  city: string;
 
   @IsOptional()
   @IsString()
@@ -57,15 +57,13 @@ export class CreateJobDto {
   @IsString()
   frequency?: string;
 
-  @IsOptional()
-  @IsString()
-  budgetType?: string;
+  @IsIn(["HOURLY", "MONTHLY", "FIXED", "COURSE", "FREE"])
+  budgetType: string;
 
   @IsOptional()
   @IsString()
   genderPref?: string;
 
-  @IsOptional()
-  @IsString()
-  currency?: string;
+  @IsIn(["USD", "INR", "EUR", "GBP", "AED", "CAD", "AUD", "SGD"])
+  currency: string;
 }

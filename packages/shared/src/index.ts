@@ -76,12 +76,14 @@ export type JobCard = {
   frequency: string;
   budgetType: string;
   genderPref: string;
+  languages?: string[];
   status: JobStatus;
   createdAt: string;
   studentName: string;
   coinPrice: number;
   applyCount: number;
   earlyAccessUntil?: string;
+  hiddenContact?: string | null;
 };
 
 export type JobApplicant = {

@@ -1,0 +1,43 @@
+import { containsContactLeak } from "./marketplace-rules";
+
+export const MIN_REQUIREMENT_WORDS = 10;
+
+const LEET_MAP: Record<string, string> = { "0": "o", "1": "i", "3": "e", "4": "a", "5": "s", "7": "t", "@": "a", $: "s" };
+
+function normalizeForProfanity(text: string) {
+  return text
+    .toLowerCase()
+    .replace(/[013457@$]/g, (c) => LEET_MAP[c])
+    .replace(/[^a-z\s]/g, "")
+    .replace(/(.)\1+/g, "$1");
+}
+
+const BLOCKED_WORDS = new Set(
+  [
+    "fuck", "fucker", "fucking", "shit", "bitch", "bastard", "asshole", "dick", "pussy", "slut", "whore",
+    "cunt", "nigger", "porn", "sexy", "nude", "xxx", "escort", "rape", "cock", "boobs",
+    "madarchod", "behenchod", "bhenchod", "chutiya", "chutiye", "gandu", "harami", "randi", "bhosdi", "bsdk",
+  ].map(normalizeForProfanity),
+);
+
+export function containsProfanity(text: string) {
+  return normalizeForProfanity(text)
+    .split(/\s+/)
+    .some((word) => BLOCKED_WORDS.has(word));
+}
+
+export function countWords(text: string) {
+  return text.split(/\s+/).filter((token) => /[\p{L}\p{N}]/u.test(token)).length;
+}
+
+export function skillError(skill: string): string | null {
+  const value = skill.trim();
+  const letters = value.match(/\p{L}/gu)?.length ?? 0;
+  if (value.length < 2 || value.length > 40) return "Skill must be 2-40 characters";
+  if (letters < 1 || !/^[\p{L}\p{N}][\p{L}\p{M}\p{N} .&+#/'-]*$/u.test(value)) {
+    return `"${value}" is not a valid subject or skill`;
+  }
+  if (containsContactLeak(value)) return "Skills can't contain contact details";
+  if (containsProfanity(value)) return "Please use appropriate words in skills";
+  return null;
+}

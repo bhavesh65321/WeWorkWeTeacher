@@ -27,6 +27,16 @@ export async function GET(request: Request) {
   const nextCookie = request.headers.get("cookie")?.match(/(?:^|; )wtws_next=([^;]+)/)?.[1];
   const next = nextCookie ? decodeURIComponent(nextCookie) : "/dashboard";
   const dest = next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard";
+  const wantsTutor = /(?:^|; )wtws_as=tutor/.test(request.headers.get("cookie") ?? "");
+  if (wantsTutor) {
+    const authHeaders = { Authorization: `Bearer ${body.token}`, "Content-Type": "application/json" };
+    await fetch(`${API}/api/auth/enable-tutor`, { method: "POST", headers: authHeaders }).catch(() => undefined);
+    await fetch(`${API}/api/auth/role`, {
+      method: "POST",
+      headers: authHeaders,
+      body: JSON.stringify({ role: "TUTOR" }),
+    }).catch(() => undefined);
+  }
   const res = NextResponse.redirect(new URL(dest, SITE));
   res.cookies.set("wtws_token", body.token, {
     httpOnly: true,
@@ -36,5 +46,6 @@ export async function GET(request: Request) {
     secure: process.env.NODE_ENV === "production",
   });
   res.cookies.delete("wtws_next");
+  res.cookies.delete("wtws_as");
   return res;
 }

@@ -82,6 +82,7 @@ export function SearchableSelect({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               onKeyDown={(e) => {
+                if (e.key === "Enter") e.preventDefault();
                 if (e.key === "Enter" && filtered.length > 0) {
                   handleSelect(filtered[0]);
                 } else if (e.key === "Enter" && allowCustom && search.trim()) {
@@ -126,6 +127,7 @@ interface MultiSelectProps {
   onChange: (selected: string[]) => void;
   placeholder?: string;
   allowCustom?: boolean;
+  validateCustom?: (value: string) => string | null;
   className?: string;
 }
 
@@ -135,10 +137,12 @@ export function MultiSelect({
   onChange,
   placeholder = "Search and select...",
   allowCustom = false,
+  validateCustom,
   className = "",
 }: MultiSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [customError, setCustomError] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -166,10 +170,13 @@ export function MultiSelect({
   }
 
   function handleAddCustom() {
-    if (search.trim() && allowCustom && !selected.includes(search.trim())) {
-      onChange([...selected, search.trim()]);
-      setSearch("");
-    }
+    const value = search.trim();
+    if (!value || !allowCustom || selected.includes(value)) return;
+    const error = validateCustom?.(value) ?? null;
+    setCustomError(error ?? "");
+    if (error) return;
+    onChange([...selected, value]);
+    setSearch("");
   }
 
   return (
@@ -211,8 +218,12 @@ export function MultiSelect({
               className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm outline-none focus:border-blue-500"
               placeholder="Type to search..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCustomError("");
+              }}
               onKeyDown={(e) => {
+                if (e.key === "Enter") e.preventDefault();
                 if (e.key === "Enter" && filtered.length > 0) {
                   handleAdd(filtered[0]);
                 } else if (e.key === "Enter" && allowCustom && search.trim()) {
@@ -220,6 +231,7 @@ export function MultiSelect({
                 }
               }}
             />
+            {customError && <p className="mt-1.5 text-xs text-red-600">{customError}</p>}
           </div>
           <ul className="py-1">
             {filtered.slice(0, 20).map((opt) => (
@@ -245,6 +257,7 @@ export function MultiSelect({
           </ul>
         </div>
       )}
+      {!isOpen && customError && <p className="mt-1 text-xs text-red-600">{customError}</p>}
     </div>
   );
 }

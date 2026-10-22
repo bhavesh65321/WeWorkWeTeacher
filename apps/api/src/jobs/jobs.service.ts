@@ -1,12 +1,45 @@
 import { ConflictException, ForbiddenException, Injectable, NotFoundException, BadRequestException } from "@nestjs/common";
-import { JobStatus, JobVisibility, Prisma, TeachingMode } from "@prisma/client";
+import { JobStatus, JobType, JobVisibility, Prisma, TeachingMode } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateJobDto } from "./dto/create-job.dto";
 import { asStringArray, jsonList } from "../json-list";
-import { EARLY_ACCESS_HOURS, MAX_JOBS_PER_DAY, currentCoinPrice, containsContactLeak, isJobMatch } from "../marketplace-rules";
+import {
+  EARLY_ACCESS_HOURS,
+  MAX_JOBS_PER_DAY,
+  currentCoinPrice,
+  extractContacts,
+  isJobMatch,
+  maskContact,
+} from "../marketplace-rules";
+import { MIN_REQUIREMENT_WORDS, containsProfanity, countWords, skillError } from "../content-rules";
 import { NotificationsService } from "../notifications/notifications.service";
 import { EmailService } from "../notifications/email.service";
 import { track } from "../analytics";
+
+function assertValidJobContent(dto: Partial<CreateJobDto>) {
+  if (dto.description !== undefined && countWords(dto.description) < MIN_REQUIREMENT_WORDS) {
+    throw new BadRequestException(`Describe your requirement in at least ${MIN_REQUIREMENT_WORDS} words.`);
+  }
+  if (dto.description !== undefined && containsProfanity(dto.description)) {
+    throw new BadRequestException("Please use appropriate language in your requirement.");
+  }
+  if (dto.subject !== undefined) {
+    const error = dto.subject.split(",").map(skillError).find(Boolean);
+    if (error) throw new BadRequestException(error);
+  }
+  const hasPaidBudget = dto.budgetType !== undefined && dto.budgetType !== "FREE";
+  if (hasPaidBudget && (!dto.budgetMin || !dto.budgetMax)) {
+    throw new BadRequestException("Enter your budget range or choose Free.");
+  }
+  if (dto.budgetMin && dto.budgetMax && dto.budgetMin > dto.budgetMax) {
+    throw new BadRequestException("Budget 'from' can't be higher than 'to'.");
+  }
+}
+
+function hiddenContactFor(dto: Partial<CreateJobDto>) {
+  const contacts = extractContacts(`${dto.title ?? ""}\n${dto.description ?? ""}`);
+  return contacts.length ? contacts.join(", ") : null;
+}
 
 @Injectable()
 export class JobsService {
@@ -20,11 +53,24 @@ export class JobsService {
     query: { mode?: string; subject?: string; type?: string; city?: string; q?: string; matched?: string; level?: string },
     viewerId?: string,
   ) {
+    if (query.type && !Object.values(JobType).includes(query.type as JobType)) return [];
     const jobs = await this.prisma.job.findMany({
       where: {
         status: JobStatus.OPEN,
         visibility: JobVisibility.PUBLIC,
         ...(query.type ? { type: query.type as never } : {}),
+        ...(query.city ? { city: { contains: query.city, mode: "insensitive" } } : {}),
+        ...(query.level ? { level: { equals: query.level, mode: "insensitive" } } : {}),
+        ...(query.subject ? { subject: { contains: query.subject, mode: "insensitive" } } : {}),
+        ...(query.q
+          ? {
+              OR: [
+                { title: { contains: query.q, mode: "insensitive" } },
+                { description: { contains: query.q, mode: "insensitive" } },
+                { subject: { contains: query.q, mode: "insensitive" } },
+              ],
+            }
+          : {}),
       },
       include: { student: true },
       orderBy: { createdAt: "desc" },
@@ -40,7 +86,7 @@ export class JobsService {
       .filter((j) => {
         const modes = asStringArray(j.modes);
         if (query.mode && query.mode !== "ALL" && !modes.includes(query.mode)) return false;
-        if (query.subject && j.subject.toLowerCase() !== query.subject.toLowerCase()) return false;
+        if (query.subject && !j.subject.toLowerCase().split(",").map((part) => part.trim()).includes(query.subject.toLowerCase())) return false;
         if (query.city && !(j.city ?? "").toLowerCase().includes(query.city.toLowerCase())) return false;
         if (query.level && (j.level ?? "").toLowerCase() !== query.level.toLowerCase()) return false;
         if (query.q) {
@@ -84,8 +130,10 @@ export class JobsService {
       const viewer = await this.prisma.user.findUnique({ where: { id: viewerId } });
       isPremium = Boolean(viewer?.premiumUntil && viewer.premiumUntil > new Date());
     }
+    const canSeeContact = isOwner || Boolean(apply && !apply.refundedAt);
     return {
       ...this.toCard(job),
+      hiddenContact: canSeeContact ? job.hiddenContact : null,
       isOwner,
       coinPrice: currentCoinPrice(job.createdAt, job.applyCount),
       applyCount: job.applyCount,
@@ -133,9 +181,7 @@ export class JobsService {
     if (student?.blockedAt) {
       throw new ForbiddenException("Your account has been blocked. Contact support.");
     }
-    if (containsContactLeak(dto.description) || containsContactLeak(dto.title)) {
-      throw new BadRequestException("Don't share phone, email, or links in the post. Tutors apply in gurumates.");
-    }
+    assertValidJobContent(dto);
     const dayAgo = new Date(Date.now() - 24 * 36e5);
     const postedToday = await this.prisma.job.count({
       where: { studentId, createdAt: { gte: dayAgo } },
@@ -148,8 +194,9 @@ export class JobsService {
     const job = await this.prisma.job.create({
       data: {
         studentId,
-        title: dto.title,
-        description: dto.description,
+        title: maskContact(dto.title),
+        description: maskContact(dto.description),
+        hiddenContact: hiddenContactFor(dto),
         type: dto.type,
         modes: jsonList(dto.modes),
         languages: jsonList(dto.languages ?? []),
@@ -177,14 +224,14 @@ export class JobsService {
     const job = await this.prisma.job.findUnique({ where: { id: jobId } });
     if (!job) throw new NotFoundException("Job not found");
     if (job.studentId !== studentId) throw new ForbiddenException();
-    if (dto.description && containsContactLeak(dto.description)) {
-      throw new BadRequestException("Don't share phone, email, or links in the post.");
-    }
+    assertValidJobContent(dto);
+    const hiddenContact = this.hiddenContactUpdate(dto);
     const updated = await this.prisma.job.update({
       where: { id: jobId },
       data: {
-        title: dto.title,
-        description: dto.description,
+        title: dto.title === undefined ? undefined : maskContact(dto.title),
+        description: dto.description === undefined ? undefined : maskContact(dto.description),
+        hiddenContact,
         type: dto.type,
         modes: dto.modes ? jsonList(dto.modes) : undefined,
         languages: dto.languages ? jsonList(dto.languages) : undefined,
@@ -204,6 +251,14 @@ export class JobsService {
       include: { student: true },
     });
     return this.toCard(updated);
+  }
+
+  private hiddenContactUpdate(dto: Partial<CreateJobDto>) {
+    if (dto.description === undefined && dto.title === undefined) return undefined;
+    const found = hiddenContactFor(dto);
+    if (found) return found;
+    const stillMasked = /\[hidden (email|number|link|app)\]/.test(`${dto.title ?? ""} ${dto.description ?? ""}`);
+    return stillMasked ? undefined : null;
   }
 
   private async notifyMatchingTutors(jobId: string, title: string, subject: string, studentId: string) {
@@ -296,6 +351,7 @@ export class JobsService {
     description: string;
     type: string;
     modes: Prisma.JsonValue;
+    languages: Prisma.JsonValue;
     visibility: string;
     subject: string;
     level: string | null;
@@ -319,6 +375,7 @@ export class JobsService {
       description: j.description,
       type: j.type,
       modes: asStringArray(j.modes) as TeachingMode[],
+      languages: asStringArray(j.languages),
       visibility: j.visibility,
       subject: j.subject,
       level: j.level,

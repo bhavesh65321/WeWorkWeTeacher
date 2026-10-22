@@ -176,6 +176,13 @@ export default async function JobDetailPage({ params }: { params: Promise<{ id: 
           {job.description}
         </div>
 
+        {job.hiddenContact && (
+          <div className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 p-3">
+            <p className="text-xs font-semibold uppercase text-emerald-700">Contact shared by student</p>
+            <p className="mt-1 break-words text-sm text-emerald-900">{job.hiddenContact}</p>
+          </div>
+        )}
+
         {/* Languages */}
         {job.languages && job.languages.length > 0 && (
           <div className="mt-6 border-t border-slate-100 pt-4">

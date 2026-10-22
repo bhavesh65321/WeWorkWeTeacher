@@ -1,3 +1,4 @@
+import { LoginThrottle } from "./login-throttle";
 import {
   BadRequestException,
   ConflictException,
@@ -102,16 +103,27 @@ export class AuthService {
     return { ...issued, needsVerify: true, otp };
   }
 
+  private readonly loginThrottle = new LoginThrottle();
+
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({ where: { email: dto.email.toLowerCase() } });
-    if (!user) throw new UnauthorizedException("Invalid email or password");
+    const email = dto.email.toLowerCase();
+    this.loginThrottle.assertAllowed(email);
+    const user = await this.prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      this.loginThrottle.recordFailure(email);
+      throw new UnauthorizedException("Invalid email or password");
+    }
     if (user.deletedAt) throw new UnauthorizedException("Account closed");
     if (user.blockedAt) throw new ForbiddenException("Your account has been blocked. Contact support.");
     if (!user.passwordHash) {
       throw new UnauthorizedException("This account uses Google. Continue with Google, or reset your password.");
     }
     const ok = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!ok) throw new UnauthorizedException("Invalid email or password");
+    if (!ok) {
+      this.loginThrottle.recordFailure(email);
+      throw new UnauthorizedException("Invalid email or password");
+    }
+    this.loginThrottle.clear(email);
     await this.prisma.user.update({ where: { id: user.id }, data: { lastSeenAt: new Date() } });
     return this.issue(user.id, user.email, user.activeRole, user.name, asStringArray(user.roles));
   }

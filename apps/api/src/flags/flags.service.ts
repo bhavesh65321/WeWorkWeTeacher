@@ -1,10 +1,16 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { track } from "../analytics";
+import { asStringArray } from "../json-list";
 
 @Injectable()
 export class FlagsService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async assertAdmin(userId: string) {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user || !asStringArray(user.roles).includes("ADMIN")) throw new ForbiddenException("Admin only");
+  }
 
   async create(reporterId: string, targetType: string, targetId: string, reason: string, notes?: string) {
     const reporter = await this.prisma.user.findUnique({ where: { id: reporterId } });
@@ -18,9 +24,15 @@ export class FlagsService {
     }
     if (targetType === "JOB") {
       const job = await this.prisma.job.findUnique({ where: { id: targetId } });
-      if (job?.studentId === reporterId) {
+      if (!job) throw new NotFoundException("Job not found");
+      if (job.studentId === reporterId) {
         throw new BadRequestException("You can't report your own post");
       }
+    }
+
+    if (targetType === "USER") {
+      const target = await this.prisma.user.findUnique({ where: { id: targetId } });
+      if (!target) throw new NotFoundException("User not found");
     }
 
     // Check 3 flags per 24h limit

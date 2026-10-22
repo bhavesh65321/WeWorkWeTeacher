@@ -23,6 +23,10 @@ enum TeachingMode {
 enum JobType {
   TUTORING
   ASSIGNMENT
+  PROJECT
+  EXAM_PREP
+  HOMEWORK
+  GROUP_CLASS
 }
 
 enum JobVisibility {
@@ -128,6 +132,7 @@ model Job {
   student     User           @relation("StudentJobs", fields: [studentId], references: [id], onDelete: Cascade)
   title       String
   description String
+  hiddenContact String?
   type        JobType
   modes       Json
   languages   Json           @default("[]")

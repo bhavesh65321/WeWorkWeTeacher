@@ -8,6 +8,7 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Matches,
   Min,
   MinLength,
   ValidateNested,
@@ -60,6 +61,7 @@ export class UpdateTutorDto {
 
   @IsOptional()
   @IsString()
+  @Matches(/^(https?:\/\/|\/)/i, { message: "photoUrl must be an http(s) or site-relative URL" })
   photoUrl?: string;
 
   @IsOptional()

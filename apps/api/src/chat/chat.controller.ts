@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
-import { IsString, MinLength } from "class-validator";
+import { IsString, Matches, MaxLength, MinLength } from "class-validator";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
 import { CurrentUser, type AuthUser } from "../auth/current-user.decorator";
 import { ChatService } from "./chat.service";
@@ -7,12 +7,14 @@ import { ChatService } from "./chat.service";
 class ApplyJobDto {
   @IsString()
   @MinLength(12)
+  @MaxLength(2000)
   message: string;
 }
 
 class SendDto {
   @IsString()
-  @MinLength(1)
+  @Matches(/\S/, { message: "Message cannot be empty" })
+  @MaxLength(2000)
   body: string;
 }
 

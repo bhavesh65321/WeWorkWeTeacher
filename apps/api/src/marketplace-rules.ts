@@ -1,20 +1,31 @@
 const PHONE = /(\+?\d[\d\s().-]{7,}\d)/g;
 const EMAIL = /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi;
+const OBFUSCATED_EMAIL = /\b[\w.+-]+\s*(?:\(at\)|\[at\]|\bat\b)\s*[\w-]+\s*(?:\(dot\)|\[dot\]|\bdot\b)\s*[a-z]{2,}\b/gi;
+const SPELLED_NUMBER = /\b(?:(?:zero|one|two|three|four|five|six|seven|eight|nine)[\s,-]+){7,}(?:zero|one|two|three|four|five|six|seven|eight|nine)\b/gi;
 const URL = /(https?:\/\/|www\.)[^\s]+/gi;
 const APPS = /\b(whatsapp|telegram|signal|skype|zoom\.us|meet\.google|facetime)\b/gi;
 
+const LEAK_PATTERNS = [PHONE, EMAIL, OBFUSCATED_EMAIL, SPELLED_NUMBER, URL, APPS];
+
 export function containsContactLeak(text: string) {
-  return [PHONE, EMAIL, URL, APPS].some((r) => {
+  return LEAK_PATTERNS.some((r) => {
     r.lastIndex = 0;
     return r.test(text);
   });
 }
 
+export function extractContacts(text: string) {
+  const found = [EMAIL, OBFUSCATED_EMAIL, URL, PHONE, SPELLED_NUMBER].flatMap((r) => text.match(r) ?? []);
+  return [...new Set(found.map((s) => s.trim()))];
+}
+
 export function maskContact(text: string) {
   return text
     .replace(EMAIL, "[hidden email]")
+    .replace(OBFUSCATED_EMAIL, "[hidden email]")
     .replace(URL, "[hidden link]")
     .replace(PHONE, "[hidden number]")
+    .replace(SPELLED_NUMBER, "[hidden number]")
     .replace(APPS, "[hidden app]");
 }
 
@@ -108,7 +119,7 @@ export function isJobMatch(
 
   const jobSkills = new Set<string>();
   if (job.subject) {
-    getSkillVariants(job.subject).forEach((v) => jobSkills.add(v));
+    job.subject.split(",").forEach((part) => getSkillVariants(part).forEach((v) => jobSkills.add(v)));
   }
   if (jobSkills.size === 0) {
     return { match: false, score: 0 };

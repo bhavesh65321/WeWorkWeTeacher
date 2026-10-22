@@ -19,6 +19,7 @@ export class BookingService {
       include: { tutor: { include: { tutorProfile: true } } },
     });
     if (!convo || convo.studentId !== studentId) throw new ForbiddenException();
+    if (new Date(startsAt).getTime() < Date.now() - 5 * 60_000) throw new BadRequestException("Pick a future date and time");
     const rate = convo.tutor.tutorProfile?.hourlyRateMinor ?? 3000;
     const hours = Math.max(durationMin, 30) / 60;
     const amountMinor = Math.round(rate * hours);

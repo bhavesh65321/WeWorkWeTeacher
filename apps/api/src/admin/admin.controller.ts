@@ -1,4 +1,4 @@
-import { Body, Controller, ForbiddenException, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, ForbiddenException, Get, NotFoundException, Param, Post, UseGuards } from "@nestjs/common";
 import { IsInt, IsString, Min, MinLength } from "class-validator";
 import { Type } from "class-transformer";
 import { JwtAuthGuard } from "../auth/jwt-auth.guard";
@@ -80,6 +80,7 @@ export class AdminController {
 
   @Post("flags")
   async flag(@CurrentUser() user: AuthUser, @Body() dto: FlagDto) {
+    await this.assertAdmin(user.sub);
     const created = await this.prisma.flag.create({
       data: {
         reporterId: user.sub,
@@ -135,7 +136,7 @@ export class AdminController {
     }
 
     const targetUser = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!targetUser) throw new ForbiddenException("User not found");
+    if (!targetUser) throw new NotFoundException("User not found");
 
     return this.prisma.user.update({
       where: { id: userId },
@@ -151,7 +152,7 @@ export class AdminController {
     await this.assertAdmin(user.sub);
 
     const targetUser = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!targetUser) throw new ForbiddenException("User not found");
+    if (!targetUser) throw new NotFoundException("User not found");
 
     return this.prisma.user.update({
       where: { id: userId },
