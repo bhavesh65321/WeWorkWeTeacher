@@ -1,0 +1,21 @@
+apps/api/prisma/seed.ts
+  s_11106e1ec74c31::t_d652c99ff1683b 9-11,14,28-29,41,46,51,57-63,66,71,76-77,82-88,91,96,101,107-113,116,121,126,132-138,141,146,151,157-213,217-218,220,233,250-259,263,265,268-277,279-300,302-343,345-464,466-472,474-477,479-488,490-558,560,562-570,572-582,584-613,616-620,623,625,632,637-639,643-644,655-665,672-677,681-706
+docs/E2E_TEST_CHECKLIST.md
+  s_11106e1ec74c31::t_34852733a69b16 1-282
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "ab17e33adc701f6ca47b701457e51e90eeccad5b",
+  "prompts": {},
+  "sessions": {
+    "s_11106e1ec74c31": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "30dbd06b-d401-40e9-a3c1-6dee25cb5a57",
+        "model": "us.anthropic.claude-opus-4-5-20251101-v1:0"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
