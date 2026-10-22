@@ -1,0 +1,145 @@
+apps/api/src/jobs/dto/create-job.dto.ts
+  s_11106e1ec74c31::t_2351aefd0b17b6 1,20,22,35-36,60-61,67-68
+apps/api/src/auth/dto/update-profile.dto.ts
+  s_11106e1ec74c31::t_f2acaba5262d34 1-2,20,22
+apps/api/src/booking/booking.service.ts
+  s_11106e1ec74c31::t_3d8541d7de6743 22
+apps/api/src/auth/login-throttle.ts
+  s_11106e1ec74c31::t_f2acaba5262d34 1-34
+e2e/qa/04-tutors-wallet-admin.mjs
+  s_11106e1ec74c31::t_7d0a64654543ec 1-4,6-32,35-45,47-125,127,132,134-137,139-160,162-194,196,198-272
+  s_11106e1ec74c31::t_bc47b1aa88de58 161,197
+  s_11106e1ec74c31::t_a6ee968e2a7717 126,128-131,133,138,195
+  s_11106e1ec74c31::t_cf58f127af2282 33-34,46
+  s_11106e1ec74c31::t_81981337dd8d65 5
+packages/shared/src/index.ts
+  s_11106e1ec74c31::t_e491ed4c466906 86
+  s_11106e1ec74c31::t_b35081e810341b 79
+apps/api/src/admin/admin.controller.ts
+  s_11106e1ec74c31::t_a6ee968e2a7717 1
+  s_11106e1ec74c31::t_bc47b1aa88de58 83
+  s_11106e1ec74c31::t_5fb95c8bf51cfe 139,155
+apps/web/lib/content-rules.ts
+  s_11106e1ec74c31::t_9ce457e1745672 53
+  s_11106e1ec74c31::t_ecdd4c4a1df89a 1-45,47-52,54-59
+  s_11106e1ec74c31::t_489c3972c38239 46
+apps/api/prisma/seed.ts
+  s_11106e1ec74c31::t_0839bcc6ac8143 342,358-359,374-375,390-391,407,454-455
+apps/api/src/marketplace-rules.ts
+  s_11106e1ec74c31::t_41588c2447605a 3-4,8-9,11,17-21,25,28
+  s_11106e1ec74c31::t_cfce05f721cd2c 122
+apps/api/src/main.ts
+  s_11106e1ec74c31::t_f2acaba5262d34 11-17
+apps/web/app/jobs/[id]/page.tsx
+  s_11106e1ec74c31::t_79c42e65499b0c 179-185
+apps/api/src/tutors/tutors.service.ts
+  s_11106e1ec74c31::t_5fb95c8bf51cfe 6-7
+  s_11106e1ec74c31::t_ec3fc8abfc9d06 33-34
+  s_11106e1ec74c31::t_e8ae5fda2c902d 170-171,184-186,232,323-337,344-345
+apps/api/src/flags/flags.controller.ts
+  s_11106e1ec74c31::t_a6ee968e2a7717 2
+  s_11106e1ec74c31::t_5fb95c8bf51cfe 6-24,35,44,51,58,65
+apps/web/app/admin/layout.tsx
+  s_11106e1ec74c31::t_d48cca40032550 1-9
+apps/api/prisma/schema.prisma
+  s_11106e1ec74c31::t_288480fbc5414e 135
+  s_11106e1ec74c31::t_127e176d4df657 26-29
+apps/web/app/tutors/edit/layout.tsx
+  s_11106e1ec74c31::t_d48cca40032550 1-8
+apps/api/src/jobs/jobs.service.ts
+  s_11106e1ec74c31::t_cfce05f721cd2c 89
+  s_11106e1ec74c31::t_b35081e810341b 354,378
+  s_11106e1ec74c31::t_9ce457e1745672 2,56
+  s_11106e1ec74c31::t_8d62f2682f4b90 6-14,19-43,133,136,184,197-199,227-228,232-234,256-262
+  s_11106e1ec74c31::t_ec3fc8abfc9d06 62-73
+  s_11106e1ec74c31::t_93203587934c3b 263
+apps/web/components/ui/searchable-select.tsx
+  s_11106e1ec74c31::t_1bcd2553205a7d 85,226
+  s_11106e1ec74c31::t_efe117e9829c23 130,140,145,173-179,221-224
+  s_11106e1ec74c31::t_b4dfbf2042276c 234,260
+apps/web/components/header.tsx
+  s_11106e1ec74c31::t_6ea53beed1a841 40
+e2e/qa/03-marketplace.mjs
+  s_11106e1ec74c31::t_089db8c67bdbf2 172,174-176
+  s_11106e1ec74c31::t_0ae952beae79d4 1-171,173,177-266
+apps/web/components/tutor-avatar.tsx
+  s_11106e1ec74c31::t_40a603307b037a 19
+e2e/qa/lib.mjs
+  s_11106e1ec74c31::t_e10f945ec8c69d 1-106
+apps/api/src/auth/auth.service.ts
+  s_11106e1ec74c31::t_f2acaba5262d34 1,106-107,109-115,122-126
+apps/api/src/auth/jwt-auth.guard.ts
+  s_11106e1ec74c31::t_5fb95c8bf51cfe 26-28
+apps/web/app/settings/layout.tsx
+  s_11106e1ec74c31::t_d48cca40032550 1-8
+e2e/api-full-test.sh
+  s_11106e1ec74c31::t_d327dfbbf3ef6b 76,81-87
+e2e/qa/02-jobs.mjs
+  s_11106e1ec74c31::t_8291e9897df1ea 1,4-18,46,166,177,182
+  s_11106e1ec74c31::t_4d6876ee47ad69 2-3,19-45,47-165,167-176,178-181,183-225
+apps/web/app/wallet/layout.tsx
+  s_11106e1ec74c31::t_d48cca40032550 1-8
+apps/api/src/content-rules.spec.ts
+  s_11106e1ec74c31::t_ac686b405c565c 1-46
+e2e/qa/05-browser.mjs
+  s_11106e1ec74c31::t_e0a88086e51ac4 180-182
+  s_11106e1ec74c31::t_936664967c436f 1-11,13-14,16-56,59-60,63-122,125-133,135-179,183-190,192-221,225-226,228-230,233-234,236-255,258,260-304
+  s_11106e1ec74c31::t_5214318f258cc3 12
+  s_11106e1ec74c31::t_c682b90e399ad5 222-224,231-232,235
+  s_11106e1ec74c31::t_da9f9adff64bdb 57-58,61-62,123-124,134
+  s_11106e1ec74c31::t_0868103803ab15 227
+  s_11106e1ec74c31::t_f92b7920fa05c0 256-257,259
+  s_11106e1ec74c31::t_65ad14b6c55969 15
+  s_11106e1ec74c31::t_91d6b8e2dc3d2c 191
+e2e/qa/01-auth.mjs
+  s_11106e1ec74c31::t_12935c7839f674 215-218
+  s_11106e1ec74c31::t_e5d800046ad06e 1-214,219-287
+apps/api/src/auth/dto/register.dto.ts
+  s_11106e1ec74c31::t_3d8541d7de6743 1-2,9,12,14
+apps/api/src/chat/chat.service.ts
+  s_11106e1ec74c31::t_3d8541d7de6743 8,56-64,97-110,121-141,174
+apps/api/src/flags/flags.service.ts
+  s_11106e1ec74c31::t_5fb95c8bf51cfe 4,10-14,27-28,33-35
+  s_11106e1ec74c31::t_0ad69d4c784c9a 36-37
+apps/api/src/tutors/dto/update-tutor.dto.ts
+  s_11106e1ec74c31::t_5fb95c8bf51cfe 11,64
+apps/api/src/content-rules.ts
+  s_11106e1ec74c31::t_9ce457e1745672 37
+  s_11106e1ec74c31::t_9c371fa717a35b 1-9,11,13,22-23,27-29,31-36,38-43
+  s_11106e1ec74c31::t_57f34cfbbf6460 10,12,14-21,24-26
+  s_11106e1ec74c31::t_0b5edf50148718 30
+apps/web/components/job-requirement-form.tsx
+  s_11106e1ec74c31::t_c3d21fffebd344 8,25,31,42-66,78,98-99,131,134,136-138,171-196,199-205,219,223,284,288,304,318-331,334-342,357-359,453-455,472-473,489,539,550,564,574
+  s_11106e1ec74c31::t_b35081e810341b 81-83,96
+packages/shared/src/constants.ts
+  s_11106e1ec74c31::t_dbc4a7c2b83667 7,9-16
+apps/api/src/chat/chat.controller.ts
+  s_11106e1ec74c31::t_3d8541d7de6743 2,10,16-17
+e2e/qa/db.mjs
+  s_11106e1ec74c31::t_a66e7dccede8c9 1-13,18-26
+  s_11106e1ec74c31::t_a6ee968e2a7717 14-17
+apps/web/app/auth/google/callback/route.ts
+  s_11106e1ec74c31::t_7ff943635bab83 30-39,49
+apps/web/app/auth/google/route.ts
+  s_11106e1ec74c31::t_6e0a899e147534 7-8,19-21
+apps/web/app/register/register-form.tsx
+  s_11106e1ec74c31::t_ac266ccc0acdaa 69
+apps/web/components/google-button.tsx
+  s_11106e1ec74c31::t_8c3fcd9d40b755 33,37,49-53,57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "e97f9e54d4410c7d65f4a0da2081b2f286138f98",
+  "prompts": {},
+  "sessions": {
+    "s_11106e1ec74c31": {
+      "agent_id": {
+        "tool": "cursor",
+        "id": "30dbd06b-d401-40e9-a3c1-6dee25cb5a57",
+        "model": "us.anthropic.claude-sonnet-5-5"
+      },
+      "human_author": "sobhavesh <bhavesh.soni@coupa.com>"
+    }
+  }
+}
